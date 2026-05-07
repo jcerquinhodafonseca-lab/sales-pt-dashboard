@@ -7,11 +7,14 @@ import csv, json, gzip, base64, re, glob, os
 from collections import defaultdict
 from datetime import date, timedelta
 
-# ── Find the most-recent CSV ──────────────────────────────────────────────────
-csv_files = sorted(glob.glob("*.csv"))
-if not csv_files:
-    raise SystemExit("No CSV file found in repo root.")
-CSV_FILE = csv_files[-1]
+# ── Find CSV: prefer sales_data.csv, else pick alphabetically last ────────────
+if os.path.exists("sales_data.csv"):
+    CSV_FILE = "sales_data.csv"
+else:
+    csv_files = sorted(glob.glob("*.csv"))
+    if not csv_files:
+        raise SystemExit("No CSV file found in repo root.")
+    CSV_FILE = csv_files[-1]
 print(f"Using CSV: {CSV_FILE}")
 
 EI_ORDER = ['01. 2025-2026','02. 2021-2024','03. 2017-2020','04. 2013-2016','05. < 2013']

@@ -24,10 +24,19 @@ jobs:
       - name: Regenerate dashboard
         run: python update_dashboard.py
 
-      - name: Commit updated index.html
+      - name: Rename uploaded CSV to sales_data.csv and remove old ones
+        run: |
+          # Move any non-standard CSV to sales_data.csv, remove leftovers
+          for f in *.csv; do
+            [ "$f" = "sales_data.csv" ] && continue
+            mv "$f" sales_data.csv
+          done
+
+      - name: Commit updated files
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html
+          git add index.html sales_data.csv
+          git add -u   # stage any deletions of old CSVs
           git diff --cached --quiet || git commit -m "Auto-update dashboard $(date +'%Y-%m-%d')"
           git push
