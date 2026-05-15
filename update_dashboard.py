@@ -40,17 +40,21 @@ def filter_rows(rws, pk):
     if pk == 'wtd':   return [r for r in rws if date.fromisoformat(r['data_venda']) >= WTD_START]
     return [r for r in rws if r['data_venda'].startswith(pk)]
 
+def tv(r): return int(r.get('total_vendas', 1))
+def sumtv(rws): return sum(tv(r) for r in rws)
+
 def compute_stats(rws, ms):
     from collections import Counter
     brands, models, ei_cnt, ek_cnt, cb_cnt, pr_cnt = Counter(), Counter(), Counter(), Counter(), Counter(), Counter()
     ey = defaultdict(lambda: defaultdict(int))
     for r in rws:
-        brands[r['marca']] += 1; models[r['modelo']] += 1
-        ei_cnt[r['escalao_idade']] += 1; ek_cnt[r['escalao_kms']] += 1
-        ey[r['escalao_idade']][str(r['ano_exato'])] += 1
-        cb_cnt[r['combustivel']] += 1; pr_cnt[r['price_range']] += 1
+        n = tv(r)
+        brands[r['marca']] += n; models[r['modelo']] += n
+        ei_cnt[r['escalao_idade']] += n; ek_cnt[r['escalao_kms']] += n
+        ey[r['escalao_idade']][str(r['ano_exato'])] += n
+        cb_cnt[r['combustivel']] += n; pr_cnt[r['price_range']] += n
     return {
-        't': len(rws),
+        't': sumtv(rws),
         'b': sorted([[b,c] for b,c in brands.items()], key=lambda x:-x[1]),
         'm': sorted([[m,c] for m,c in models.items()], key=lambda x:-x[1])[:20],
         'ei': {k: ei_cnt[k] for k in EI_ORDER if k in ei_cnt},
@@ -73,11 +77,12 @@ def cf_entry(rws, with_bek=True):
     brands, models, ei_cnt, ek_cnt, cb_cnt, pr_cnt = Counter(), Counter(), Counter(), Counter(), Counter(), Counter()
     bek_ei = defaultdict(lambda: defaultdict(int))
     for r in rws:
-        brands[r['marca']] += 1; models[r['modelo']] += 1
-        ei_cnt[r['escalao_idade']] += 1; ek_cnt[r['escalao_kms']] += 1
-        cb_cnt[r['combustivel']] += 1; pr_cnt[r['price_range']] += 1
-        bek_ei[r['escalao_kms']][r['escalao_idade']] += 1
-    e = {'t': len(rws),
+        n = tv(r)
+        brands[r['marca']] += n; models[r['modelo']] += n
+        ei_cnt[r['escalao_idade']] += n; ek_cnt[r['escalao_kms']] += n
+        cb_cnt[r['combustivel']] += n; pr_cnt[r['price_range']] += n
+        bek_ei[r['escalao_kms']][r['escalao_idade']] += n
+    e = {'t': sumtv(rws),
          'b': sorted([[b,c] for b,c in brands.items()],key=lambda x:-x[1])[:10],
          'm': sorted([[m,c] for m,c in models.items()],key=lambda x:-x[1])[:5],
          'ei': [ei_cnt.get(k,0) for k in EI_ORDER],
@@ -94,16 +99,16 @@ def build_full_dataset(rws):
 
     mo_ = dict(sorted({ym: 0 for ym in all_ym}.items()))
     for r in rws:
-        mo_[r['data_venda'][:7]] += 1
+        mo_[r['data_venda'][:7]] += tv(r)
 
     ytd_r = filter_rows(rws, 'ytd')
     mtd_r = filter_rows(rws, 'mtd')
     wtd_r = filter_rows(rws, 'wtd')
-    kpi_ = {'ytd': len(ytd_r), 'mtd': len(mtd_r), 'wtd': len(wtd_r), 'total': len(rws)}
+    kpi_ = {'ytd': sumtv(ytd_r), 'mtd': sumtv(mtd_r), 'wtd': sumtv(wtd_r), 'total': sumtv(rws)}
 
     cat_bm_ = defaultdict(lambda: defaultdict(int))
     for r in rws:
-        cat_bm_[r['marca']][r['modelo']] += 1
+        cat_bm_[r['marca']][r['modelo']] += tv(r)
     cat_ = {b: sorted([[m,c] for m,c in ms.items()], key=lambda x:-x[1])
             for b, ms in cat_bm_.items()}
 
@@ -128,10 +133,10 @@ def build_full_dataset(rws):
     cmo_d_ = defaultdict(lambda: defaultdict(int))
     prmo_d_ = defaultdict(lambda: defaultdict(int))
     for r in rws:
-        ym = r['data_venda'][:7]
-        bmo_d_[r['marca']][ym] += 1
-        cmo_d_[r['combustivel']][ym] += 1
-        prmo_d_[r['price_range']][ym] += 1
+        ym = r['data_venda'][:7]; n = tv(r)
+        bmo_d_[r['marca']][ym] += n
+        cmo_d_[r['combustivel']][ym] += n
+        prmo_d_[r['price_range']][ym] += n
 
     return {
         'p': p_, 'mo': mo_, 'kpi': kpi_, 'cat': cat_, 'cf': cf_,
@@ -145,14 +150,14 @@ period_keys = ['all','ytd','mtd','wtd'] + years + all_ym
 p = {pk: compute_stats(filter_rows(rows,pk), get_ms(pk)) for pk in period_keys}
 
 mo = dict(sorted({ym:0 for ym in all_ym}.items()))
-for r in rows: mo[r['data_venda'][:7]] += 1
+for r in rows: mo[r['data_venda'][:7]] += tv(r)
 
 ytd_r = filter_rows(rows,'ytd'); mtd_r = filter_rows(rows,'mtd'); wtd_r = filter_rows(rows,'wtd')
-kpi = {'ytd': len(ytd_r), 'mtd': len(mtd_r), 'wtd': len(wtd_r), 'total': len(rows)}
+kpi = {'ytd': sumtv(ytd_r), 'mtd': sumtv(mtd_r), 'wtd': sumtv(wtd_r), 'total': sumtv(rows)}
 print("KPI:", kpi)
 
 cat_bm = defaultdict(lambda: defaultdict(int))
-for r in rows: cat_bm[r['marca']][r['modelo']] += 1
+for r in rows: cat_bm[r['marca']][r['modelo']] += tv(r)
 cat = {b: sorted([[m,c] for m,c in ms.items()],key=lambda x:-x[1]) for b,ms in cat_bm.items()}
 
 CF_PERIODS = ['all','ytd','mtd','wtd'] + years
@@ -175,8 +180,8 @@ bmo_d = defaultdict(lambda: defaultdict(int))
 cmo_d = defaultdict(lambda: defaultdict(int))
 prmo_d = defaultdict(lambda: defaultdict(int))
 for r in rows:
-    ym = r['data_venda'][:7]
-    bmo_d[r['marca']][ym] += 1; cmo_d[r['combustivel']][ym] += 1; prmo_d[r['price_range']][ym] += 1
+    ym = r['data_venda'][:7]; n = tv(r)
+    bmo_d[r['marca']][ym] += n; cmo_d[r['combustivel']][ym] += n; prmo_d[r['price_range']][ym] += n
 
 obj_new = {
     'p': p, 'mo': mo, 'kpi': kpi, 'cat': cat, 'cf': cf,
