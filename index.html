@@ -73,7 +73,7 @@ td.r{text-align:right;font-variant-numeric:tabular-nums}td.bc{width:70px}
     <button class="b" data-p="wtd">WTD</button><button class="b" data-p="all">All Time</button>
     <span class="sp">|</span>
     <select id="ys"><option value="">Ano</option></select>
-    <select id="ms"><option value="">M&ecirc;s</option></select>
+    <select id="ms"><option value="">M&ecirc;s</option></select><span id="canalWrap" style="display:none;align-items:center;gap:4px"><span class="sp">|</span><button class="b canlb on" data-canal="">Total</button></span>
     <span class="sp">|</span>
     <button class="b" id="catBtn">&#x1F4CB; Cat&aacute;logo</button>
   </div>
@@ -142,7 +142,7 @@ async function decompress(b64){
   let off=0;for(const c of chunks){out.set(c,off);off+=c.length;}
   return JSON.parse(new TextDecoder().decode(out));
 }
-let D,S={p:'ytd',brand:null,ei:null,ek:null,model:null,yr:null,comb:null,pr:null},CH={},_mtdLabel='',_wtdLabel='';
+let D,DALL,S={p:'ytd',brand:null,ei:null,ek:null,model:null,yr:null,comb:null,pr:null,canal:null},CH={},_mtdLabel='',_wtdLabel='';
 function dc(id){if(CH[id]){try{CH[id].destroy();}catch(e){}delete CH[id];}const el=document.getElementById(id);if(el&&el.tagName==='CANVAS'){const n=el.cloneNode(false);el.parentNode.replaceChild(n,el);}}
 function getM2B(){if(!D._m2b){D._m2b={};for(const[br,ms]of Object.entries(D.cat||{}))for(const[mo]of ms)D._m2b[mo]=br;}return D._m2b;}
 // ── masterData: D is loaded once on init and never modified ──
@@ -478,11 +478,11 @@ async function fetchAndUpdate(){
     const nb64=typeof j==='string'?j:(j.b64||null);
     if(!nb64)return;
     const nd=await decompress(nb64);
-    if(nd){D=nd;render();console.log('Dashboard refreshed from remote data.');}
+    if(nd){DALL=nd;D=S.canal&&nd.canal&&nd.canal[S.canal]?nd.canal[S.canal]:nd;render();console.log('Dashboard refreshed from remote data.');}
   }catch(e){console.warn('Auto-refresh failed:',e);}
 }
 async function init(){
-  D=await decompress(B64);
+  D=await decompress(B64);DALL=D;
   document.getElementById('ld').style.display='none';
   // Date labels always computed from browser's current date — never hardcoded
   const MNS_S=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -525,6 +525,22 @@ async function init(){
   document.getElementById('tmMClose').addEventListener('click',()=>{
     document.getElementById('tmModal').classList.remove('open');
   });
+  // ── Canal buttons (Stock PT / Stock Importação) ─────────────────────────────
+  const cw=document.getElementById('canalWrap');
+  if(cw&&D.canal&&Object.keys(D.canal).length){
+    Object.keys(D.canal).sort().forEach(cv=>{
+      const btn=document.createElement('button');btn.className='b canlb';
+      btn.dataset.canal=cv;btn.textContent=cv;cw.appendChild(btn);
+    });
+    cw.style.display='inline-flex';
+    cw.querySelectorAll('.canlb').forEach(btn=>btn.addEventListener('click',()=>{
+      cw.querySelectorAll('.canlb').forEach(x=>x.classList.remove('on'));
+      btn.classList.add('on');
+      const cv=btn.dataset.canal;S.canal=cv||null;
+      D=cv?(DALL.canal&&DALL.canal[cv])||DALL:DALL;
+      delete D._m2b;delete D._cat;delete D._plk;render();
+    }));
+  }
   render();
   // Auto-refresh: fetch fresh data on load and every 24h
   fetchAndUpdate();

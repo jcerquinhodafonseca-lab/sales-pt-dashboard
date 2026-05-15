@@ -87,7 +87,60 @@ def cf_entry(rws, with_bek=True):
         e['bek_ei'] = {ek:[bek_ei[ek].get(ei,0) for ei in EI_ORDER] for ek in EK_ORDER if ek in bek_ei}
     return e
 
-# ── Build all periods ─────────────────────────────────────────────────────────
+def build_full_dataset(rws):
+    """Build the full p/mo/kpi/cat/cf/bmo/cmo/prmo structure for a subset of rows."""
+    period_keys_ = ['all','ytd','mtd','wtd'] + years + all_ym
+    p_ = {pk: compute_stats(filter_rows(rws, pk), get_ms(pk)) for pk in period_keys_}
+
+    mo_ = dict(sorted({ym: 0 for ym in all_ym}.items()))
+    for r in rws:
+        mo_[r['data_venda'][:7]] += 1
+
+    ytd_r = filter_rows(rws, 'ytd')
+    mtd_r = filter_rows(rws, 'mtd')
+    wtd_r = filter_rows(rws, 'wtd')
+    kpi_ = {'ytd': len(ytd_r), 'mtd': len(mtd_r), 'wtd': len(wtd_r), 'total': len(rws)}
+
+    cat_bm_ = defaultdict(lambda: defaultdict(int))
+    for r in rws:
+        cat_bm_[r['marca']][r['modelo']] += 1
+    cat_ = {b: sorted([[m,c] for m,c in ms.items()], key=lambda x:-x[1])
+            for b, ms in cat_bm_.items()}
+
+    CF_PERIODS_ = ['all','ytd','mtd','wtd'] + years
+    cf_ = {}
+    for cp in CF_PERIODS_:
+        pr_ = filter_rows(rws, cp)
+        bg, eg, ekg, cbg, prg = (defaultdict(list) for _ in range(5))
+        for r in pr_:
+            bg[r['marca']].append(r); eg[r['escalao_idade']].append(r)
+            ekg[r['escalao_kms']].append(r); cbg[r['combustivel']].append(r)
+            prg[r['price_range']].append(r)
+        cf_[cp] = {
+            'b':  {b: cf_entry(g, True)  for b, g in bg.items()},
+            'ei': {k: cf_entry(g, False) for k, g in eg.items()},
+            'ek': {k: cf_entry(g, False) for k, g in ekg.items()},
+            'cb': {k: cf_entry(g, False) for k, g in cbg.items()},
+            'pr': {k: cf_entry(g, False) for k, g in prg.items()},
+        }
+
+    bmo_d_ = defaultdict(lambda: defaultdict(int))
+    cmo_d_ = defaultdict(lambda: defaultdict(int))
+    prmo_d_ = defaultdict(lambda: defaultdict(int))
+    for r in rws:
+        ym = r['data_venda'][:7]
+        bmo_d_[r['marca']][ym] += 1
+        cmo_d_[r['combustivel']][ym] += 1
+        prmo_d_[r['price_range']][ym] += 1
+
+    return {
+        'p': p_, 'mo': mo_, 'kpi': kpi_, 'cat': cat_, 'cf': cf_,
+        'bmo': {b: dict(sorted(m.items())) for b, m in bmo_d_.items()},
+        'cmo': {c: dict(sorted(m.items())) for c, m in cmo_d_.items()},
+        'prmo': {p2: dict(sorted(m.items())) for p2, m in prmo_d_.items()},
+    }
+
+# ── Build all periods (full dataset) ─────────────────────────────────────────
 period_keys = ['all','ytd','mtd','wtd'] + years + all_ym
 p = {pk: compute_stats(filter_rows(rows,pk), get_ms(pk)) for pk in period_keys}
 
@@ -131,6 +184,22 @@ obj_new = {
     'cmo': {c: dict(sorted(m.items())) for c,m in cmo_d.items()},
     'prmo': {p2: dict(sorted(m.items())) for p2,m in prmo_d.items()},
 }
+
+# ── Canal support (Stock PT / Stock Importação) ───────────────────────────────
+CANAL_COL = 'canal'
+if rows and CANAL_COL in rows[0]:
+    canal_vals = sorted(set(r[CANAL_COL] for r in rows if r.get(CANAL_COL, '').strip()))
+    print(f"Canal column found. Values: {canal_vals}")
+    if canal_vals:
+        canal_data = {}
+        for cv in canal_vals:
+            cv_rows = [r for r in rows if r.get(CANAL_COL) == cv]
+            print(f"  '{cv}': {len(cv_rows):,} rows")
+            canal_data[cv] = build_full_dataset(cv_rows)
+        obj_new['canal'] = canal_data
+        print("Canal data added to output.")
+else:
+    print("No 'canal' column found — skipping canal split.")
 
 json_str   = json.dumps(obj_new, ensure_ascii=False, separators=(',',':'))
 compressed = gzip.compress(json_str.encode('utf-8'), compresslevel=9)
