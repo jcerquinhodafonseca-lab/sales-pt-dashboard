@@ -239,8 +239,8 @@ function getFilteredData(){
     const bt=S.brand!=null?base.b.find(([b])=>b===S.brand):null;
     let t=S.brand!=null?(bt?bt[1]:0):base.t;
     for(const d of DIMS){if(d==='brand'||S[d]==null)continue;const dc=(maps[d]||{})[S[d]]||0;t=base.t>0?Math.round(t*dc/base.t):0;}
-    const fm=S.brand!=null?base.m.filter(([m])=>m2b[m]===S.brand):base.m;
-    return enforceModelFilter(applyModelYr({...base,t,m:fm.length?fm:(S.brand!=null&&D.cat[S.brand]?D.cat[S.brand].slice(0,10):base.m)},base),base);
+    let fm;if(S.brand!=null&&D.cat[S.brand]){const allT=D.cat[S.brand].reduce((s,[,c])=>s+c,0)||1;fm=D.cat[S.brand].map(([mo,c])=>[mo,Math.round(c*t/allT)]).filter(([,c])=>c>0);}else{fm=S.brand!=null?base.m.filter(([m])=>m2b[m]===S.brand):base.m;}
+    return enforceModelFilter(applyModelYr({...base,t,m:fm.length?fm:base.m},base),base);
   }
   // Step 2: find primary — first active filter with a CF entry (brand > ei > ek > comb > pr)
   let primary=null,raw=null;
@@ -270,6 +270,8 @@ function getFilteredData(){
   }
   const t=Math.min(...candidates);
   result={...result,t};
+  // Override model list with full brand catalogue scaled to current period total
+  if(S.brand!=null&&D.cat[S.brand]){const allT=D.cat[S.brand].reduce((s,[,c])=>s+c,0)||1;result={...result,m:D.cat[S.brand].map(([mo,c])=>[mo,Math.round(c*t/allT)]).filter(([,c])=>c>0)};}
   // Step 5: refine distributions to reflect active focused selections
   if(primary==='brand'){
     if(S.ei!=null&&S.ek!=null&&raw.bek_ei&&raw.bek_ei[S.ek]){
