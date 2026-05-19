@@ -431,7 +431,8 @@ function renderAll(data){
   drawFB();
   if(catOpen){renderCat(document.getElementById('ctsrc').value);return;}
   drawMo();
-  drawTbl('tb',data.b,data.b[0]?.[1]||1,l=>setF('brand',l),l=>l===S.brand,'#3b82f6',data.t);
+  const bpd=S.brand!=null?(D.p[S.p]||{b:[],t:1}):{b:data.b,t:data.t};
+  drawTbl('tb',bpd.b,bpd.b[0]?.[1]||1,l=>setF('brand',l),l=>l===S.brand,'#3b82f6',bpd.t);
   drawTbl('tm2',data.m,data.m[0]?.[1]||1,l=>setF('model',l),l=>l===S.model,'#a78bfa',data.t);
   drawTM(data);drawEK(data);drawCB(data);drawPR(data);
   if(document.getElementById('tmModal').classList.contains('open'))drawTM(data,'tmFull');
