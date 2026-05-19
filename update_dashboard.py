@@ -82,9 +82,10 @@ def cf_entry(rws, with_bek=True):
         ei_cnt[r['escalao_idade']] += n; ek_cnt[r['escalao_kms']] += n
         cb_cnt[r['combustivel']] += n; pr_cnt[r['price_range']] += n
         bek_ei[r['escalao_kms']][r['escalao_idade']] += n
+    all_m = sorted([[m,c] for m,c in models.items()],key=lambda x:-x[1])
     e = {'t': sumtv(rws),
          'b': sorted([[b,c] for b,c in brands.items()],key=lambda x:-x[1])[:10],
-         'm': sorted([[m,c] for m,c in models.items()],key=lambda x:-x[1])[:5],
+         'm': all_m if with_bek else all_m[:5],
          'ei': [ei_cnt.get(k,0) for k in EI_ORDER],
          'ek': [ek_cnt.get(k,0) for k in EK_ORDER],
          'cb': dict(cb_cnt), 'pr': dict(pr_cnt)}
