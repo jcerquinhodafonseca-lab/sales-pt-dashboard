@@ -49,12 +49,6 @@ td.r{text-align:right;font-variant-numeric:tabular-nums}td.bc{width:70px}
 #tmMClose{background:#FF6600;border:none;color:#fff;border-radius:3px;padding:5px 16px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:700}
 #tmMClose:hover{background:#cc5200}
 #tmFull{flex:1;border-radius:3px;overflow:hidden;display:flex;gap:2px}
-#pg2{display:none;padding:14px 20px}
-.cthd{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
-.cthd>span:first-child{color:#1a1a2e!important;font-size:12px;font-weight:700}
-#ctsrc{flex:1;min-width:180px;padding:5px 10px;border-radius:3px;border:1.5px solid #003087;background:#fff;color:#1a1a2e;font-size:12px;outline:none}
-#ctsrc:focus{border-color:#FF6600;box-shadow:0 0 0 2px rgba(255,102,0,.12)}
-#ctcnt{color:#888!important;font-size:11px;white-space:nowrap}
 #ld{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;z-index:999;font-size:14px;color:#aaa}
 @media(max-width:600px){#gr{grid-template-columns:1fr}.fw{grid-column:1}.logo-wrap{border-right:none;padding-right:0}}</style></head><body>
 <div id="ld">A carregar dados...</div>
@@ -69,8 +63,6 @@ td.r{text-align:right;font-variant-numeric:tabular-nums}td.bc{width:70px}
     <span class="sp">|</span>
     <select id="ys"><option value="">Ano</option></select>
     <select id="ms"><option value="">M&ecirc;s</option></select><span id="canalWrap" style="display:none;align-items:center;gap:4px"><span class="sp">|</span><button class="b canlb on" data-canal="">Total</button></span>
-    <span class="sp">|</span>
-    <button class="b" id="catBtn">&#x1F4CB; Cat&aacute;logo</button>
   </div>
   <span id="updLbl" style="margin-left:auto;font-size:10px;color:#bbb;white-space:nowrap"></span>
 </div>
@@ -84,16 +76,6 @@ td.r{text-align:right;font-variant-numeric:tabular-nums}td.bc{width:70px}
   <div class="cc"><h3>Combust&iacute;vel <span class="ht">&mdash; clique p/ filtrar</span></h3><canvas id="ccb" style="max-height:180px"></canvas></div>
   <div class="cc"><h3>Gama de Pre&ccedil;o <span class="ht">&mdash; clique p/ filtrar</span></h3><canvas id="cpr" style="max-height:220px"></canvas></div>
   <div class="cc fw"><h3>Origem do Ve&iacute;culo <span class="ht" id="cooLbl">&mdash; todos os canais</span></h3><div id="cooWrap" style="position:relative"><canvas id="ccoo"></canvas></div></div>
-</div>
-<div id="pg2">
-  <div class="cthd">
-    <span style="color:#a0aec0;font-size:12px;font-weight:600">Cat&aacute;logo Completo &mdash; todas as marcas e modelos</span>
-    <input id="ctsrc" placeholder="Pesquisar marca ou modelo...">
-    <span id="ctcnt" style="color:#4a5568;font-size:11px;white-space:nowrap"></span>
-  </div>
-  <div style="max-height:calc(100vh - 150px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:#2d3748 transparent">
-    <table><thead><tr><th>#</th><th>Marca</th><th>Modelo</th><th class="r">Vendas</th><th class="r">% Total</th></tr></thead><tbody id="ctbd"></tbody></table>
-  </div>
 </div>
 <div id="tmModal">
   <div id="tmMHdr">
@@ -449,7 +431,6 @@ function normalizeDistributions(data){
 function renderAll(data){
   data=normalizeDistributions(data);
   drawFB();
-  if(catOpen){renderCat(document.getElementById('ctsrc').value);return;}
   drawMo();
   const bpd=S.brand!=null?(D.p[S.p]||{b:[],t:1}):{b:data.b,t:data.t};
   drawTbl('tb',bpd.b,bpd.b[0]?.[1]||1,l=>setF('brand',l),l=>l===S.brand,'#3b82f6',bpd.t);
@@ -458,36 +439,6 @@ function renderAll(data){
   if(document.getElementById('tmModal').classList.contains('open'))drawTM(data,'tmFull');
 }
 function render(){renderAll(getFilteredData());}// period buttons call render()
-function buildCat(){
-  if(D._cat)return D._cat;
-  const arr=[];for(const[br,models]of Object.entries(D.cat))for(const[mo,v]of models)arr.push([br,mo,v]);
-  arr.sort((a,b)=>b[2]-a[2]);D._cat=arr;return arr;
-}
-function renderCat(q){
-  const ql=(q||'').toLowerCase().trim();let items,tot;
-  if(S.p==='all'){
-    const cat=buildCat();tot=D.kpi.total;
-    items=ql?cat.filter(([br,mo])=>br.toLowerCase().includes(ql)||mo.toLowerCase().includes(ql)):cat;
-  } else {
-    const m2b=getM2B();const pdata=D.p[S.p]||{t:0,m:[]};tot=pdata.t||1;
-    const pmcD=D.pmc&&D.pmc[S.p];
-    const rawItems=pmcD?pmcD.map(([mi,v])=>{const mo=D.mi[mi];return[m2b[mo]||'\u2014',mo,v];}):(pdata.m||[]).map(([mo,v])=>[m2b[mo]||'\u2014',mo,v]);
-    items=ql?rawItems.filter(([br,mo])=>br.toLowerCase().includes(ql)||mo.toLowerCase().includes(ql)):rawItems;
-  }
-  document.getElementById('ctcnt').textContent=`${items.length} resultado${items.length!==1?'s':''}`;
-  document.getElementById('ctbd').innerHTML=items.slice(0,500).map(([br,mo,v],i)=>
-    `<tr><td style="color:#4a5568">${i+1}</td><td>${br}</td><td>${mo}</td><td class="r">${pt(v)}</td><td class="r" style="color:#4a5568;font-size:10px">${pct(v,tot)}%</td></tr>`).join('');
-}
-let catOpen=false;
-document.getElementById('catBtn').addEventListener('click',()=>{
-  catOpen=!catOpen;
-  document.getElementById('pg2').style.display=catOpen?'block':'none';
-  document.getElementById('kp').style.display=catOpen?'none':'';
-  document.getElementById('gr').style.display=catOpen?'none':'';
-  document.getElementById('catBtn').classList.toggle('on',catOpen);
-  if(catOpen)renderCat();
-});
-document.getElementById('ctsrc').addEventListener('input',e=>renderCat(e.target.value));
 document.querySelectorAll('.b[data-p]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.b[data-p]').forEach(x=>x.classList.remove('on'));b.classList.add('on');
   S.p=b.dataset.p;document.getElementById('ys').value='';document.getElementById('ms').value='';render();
@@ -563,7 +514,7 @@ async function init(){
       btn.classList.add('on');
       const cv=btn.dataset.canal;S.canal=cv||null;
       D=cv?(DALL.canal&&DALL.canal[cv])||DALL:DALL;
-      delete D._m2b;delete D._cat;delete D._plk;render();
+      delete D._m2b;delete D._plk;render();
     }));
   }
   render();
