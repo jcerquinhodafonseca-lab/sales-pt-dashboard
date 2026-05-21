@@ -417,8 +417,7 @@ function drawCOO(){
   if(rows.length>12){const outros=rows.slice(12).reduce((s,[,v])=>s+v,0);rows=[...rows.slice(0,12),['Outros',outros]];}
   const tot=rows.reduce((s,[,v])=>s+v,0)||1;
   const maxV=rows[0]?.[1]||1;
-  const flag=c=>{if(!c||c.length!==2)return'';try{return String.fromCodePoint(...[...c.toUpperCase()].map(x=>0x1F1E6+x.charCodeAt(0)-65));}catch{return'';}};
-  const label=c=>c==='Unknown'?'❓ Desconhecido':c==='Outros'?'🌍 Outros':(flag(c)||'🏳')+'\u00a0'+c;
+  const label=c=>c==='Unknown'?'Desconhecido':c;
   const color=c=>c==='PT'?'#3b82f6':c==='Outros'||c==='Unknown'?'rgba(150,150,150,.5)':'#ff8c00';
   wrap.innerHTML=rows.map(([c,v])=>{
     const w=Math.round(v/maxV*100);const pct2=(v/tot*100).toFixed(1);
