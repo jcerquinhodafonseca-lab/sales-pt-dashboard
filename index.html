@@ -94,7 +94,7 @@ td.r{text-align:right;font-variant-numeric:tabular-nums}td.bc{width:70px}
   <div class="cc"><h3>Escal&atilde;o Kms <span class="ht">&mdash; clique p/ filtrar</span></h3><canvas id="ce" style="max-height:220px"></canvas></div>
   <div class="cc"><h3>Combust&iacute;vel <span class="ht">&mdash; clique p/ filtrar</span></h3><canvas id="ccb" style="max-height:180px"></canvas></div>
   <div class="cc"><h3>Gama de Pre&ccedil;o <span class="ht">&mdash; clique p/ filtrar</span></h3><canvas id="cpr" style="max-height:220px"></canvas></div>
-  <div class="cc fw"><h3>Origem do Ve&iacute;culo <span class="ht" id="cooLbl">&mdash; todos os canais</span></h3><div id="cooWrap" style="position:relative"><canvas id="ccoo"></canvas></div></div>
+  <div class="cc fw"><h3>Origem do Ve&iacute;culo <span class="ht" id="cooLbl">&mdash; todos os canais</span></h3><div id="cooWrap"></div></div>
 </div>
 <div id="pg2">
   <div class="cthd">
@@ -410,24 +410,26 @@ function drawPR(data){
       onClick(_,els){if(els.length)setF('pr',PRO[els[0].index]);}}});
 }
 function drawCOO(){
-  dc('ccoo');const ctx=document.getElementById('ccoo');if(!ctx)return;
+  const wrap=document.getElementById('cooWrap');if(!wrap)return;
   const lbl=document.getElementById('cooLbl');
   if(lbl)lbl.textContent=S.canal?'\u2014 '+S.canal:'\u2014 todos os canais';
   let rows=(D.p[S.p]||{}).coo||[];
   if(rows.length>12){const outros=rows.slice(12).reduce((s,[,v])=>s+v,0);rows=[...rows.slice(0,12),['Outros',outros]];}
-  const flag=c=>{if(!c||c.length!==2||c==='??')return'';try{return String.fromCodePoint(...[...c.toUpperCase()].map(x=>0x1F1E6+x.charCodeAt(0)-65))+' ';}catch{return'';}};
-  const labels=rows.map(([c])=>c==='Unknown'?'❓ Desconhecido':c==='Outros'?'🌍 Outros':flag(c)+c);
-  const vals=rows.map(([,v])=>v);
-  const tot=vals.reduce((s,v)=>s+v,0)||1;
-  const colors=rows.map(([c])=>c==='PT'?'rgba(59,130,246,.82)':c==='Outros'?'rgba(150,150,150,.45)':'rgba(255,140,0,.75)');
-  const wrap=document.getElementById('cooWrap');
-  if(wrap)wrap.style.height=Math.max(120,rows.length*30+50)+'px';
-  CH['ccoo']=new Chart(ctx,{type:'bar',
-    data:{labels,datasets:[{data:vals,backgroundColor:colors,borderRadius:3,borderSkipped:false,barThickness:18}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:{duration:150},
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const pct2=(c.parsed.x/tot*100).toFixed(1);return` ${pt(c.parsed.x)} (${pct2}%)`;}}}},
-      scales:{x:{grid:{color:'#f0f0f0'},ticks:{color:'#999',callback:v=>pt(v)}},
-        y:{grid:{display:false},ticks:{color:'#999',font:{size:11}}}}}});
+  const tot=rows.reduce((s,[,v])=>s+v,0)||1;
+  const maxV=rows[0]?.[1]||1;
+  const flag=c=>{if(!c||c.length!==2)return'';try{return String.fromCodePoint(...[...c.toUpperCase()].map(x=>0x1F1E6+x.charCodeAt(0)-65));}catch{return'';}};
+  const label=c=>c==='Unknown'?'❓ Desconhecido':c==='Outros'?'🌍 Outros':(flag(c)||'🏳')+'\u00a0'+c;
+  const color=c=>c==='PT'?'#3b82f6':c==='Outros'||c==='Unknown'?'rgba(150,150,150,.5)':'#ff8c00';
+  wrap.innerHTML=rows.map(([c,v])=>{
+    const w=Math.round(v/maxV*100);const pct2=(v/tot*100).toFixed(1);
+    return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+      <span style="width:130px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${label(c)}</span>
+      <div style="flex:1;background:rgba(0,0,0,.06);border-radius:3px;height:16px;min-width:60px">
+        <div style="width:${w}%;background:${color(c)};height:100%;border-radius:3px;transition:width .2s"></div>
+      </div>
+      <span style="width:110px;text-align:right;font-size:11px;color:#666;white-space:nowrap">${pt(v)} <span style="opacity:.6">(${pct2}%)</span></span>
+    </div>`;
+  }).join('');
 }
 function drawFB(){
   const bar=document.getElementById('fb');
