@@ -191,6 +191,7 @@ obj_new = {
     'bmo': {b: dict(sorted(m.items())) for b,m in bmo_d.items()},
     'cmo': {c: dict(sorted(m.items())) for c,m in cmo_d.items()},
     'prmo': {p2: dict(sorted(m.items())) for p2,m in prmo_d.items()},
+    'last_date': str(TODAY),
 }
 
 # ── Canal support (Stock PT / Stock Importação) ───────────────────────────────
