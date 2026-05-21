@@ -14,14 +14,12 @@ h1{font-size:13px;font-weight:700;color:#1a1a2e;letter-spacing:-.01em}
 .sp{color:#ddd;font-size:10px;margin:0 2px}
 select{padding:4px 8px;border-radius:3px;border:1.5px solid #003087;background:#fff;color:#003087;font-size:11px;font-family:inherit;cursor:pointer;outline:none;font-weight:600}
 #fb{display:flex;gap:5px;flex-wrap:wrap;padding:5px 20px;min-height:30px;align-items:center;background:#fff9f5;border-bottom:1px solid #ffe8d6;position:sticky;top:54px;z-index:99}
-.fb-cnt{background:#FF6600;color:#fff;font-weight:700;font-size:12px;padding:2px 10px;border-radius:3px;margin-right:4px;white-space:nowrap}
+.fb-sel{display:inline-flex;flex-direction:column;line-height:1.15;padding-right:10px;margin-right:4px;border-right:1.5px solid #ffd0b0;flex-shrink:0}
+.fb-per{font-size:8px;color:#FF6600;text-transform:uppercase;letter-spacing:.07em;font-weight:700;opacity:.75;margin-bottom:1px}
+.fb-val{font-size:15px;font-weight:800;color:#1a1a2e;font-variant-numeric:tabular-nums}
 .ft{display:flex;align-items:center;gap:3px;background:#fff3e6;border:1.5px solid #FF6600;border-radius:3px;padding:2px 9px;font-size:11px;color:#FF6600;font-weight:600}
 .fx{cursor:pointer;color:#FF6600;margin-left:2px;font-size:14px;line-height:1}.fx:hover{color:#cc5200}
 .ca{margin-left:auto;color:#003087;font-size:11px;cursor:pointer;padding:2px 9px;border-radius:3px;border:1.5px solid #003087;background:transparent;font-family:inherit;font-weight:600}
-#kp{background:#fff;border-bottom:2px solid #f0f0f0;padding:10px 24px;display:flex;align-items:center;justify-content:center;position:sticky;top:90px;z-index:98;box-shadow:0 2px 10px rgba(0,0,0,.07);gap:14px}
-.kpLbl{font-size:9px;color:#bbb;text-transform:uppercase;letter-spacing:.09em;font-weight:700}
-.kpVal{font-size:28px;font-weight:800;color:#FF6600;line-height:1;font-variant-numeric:tabular-nums}
-.kpSub{font-size:11px;color:#bbb}
 #gr{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 20px 24px;background:#f5f5f7}
 .cc{background:#fff;border-radius:4px;padding:14px;border:1px solid #eee;border-top:3px solid #FF6600;box-shadow:0 1px 4px rgba(0,0,0,.04)}
 .cc.fw{grid-column:1/-1}
@@ -77,11 +75,6 @@ td.r{text-align:right;font-variant-numeric:tabular-nums}td.bc{width:70px}
   <span id="updLbl" style="margin-left:auto;font-size:10px;color:#bbb;white-space:nowrap"></span>
 </div>
 <div id="fb"></div>
-<div id="kp">
-  <span class="kpLbl">Sele&ccedil;&atilde;o Atual</span>
-  <span class="kpVal" id="v0">&mdash;</span>
-  <span class="kpSub" id="l0"></span>
-</div>
 <div id="gr">
   <div class="cc fw"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><h3 style="margin:0">Tend&ecirc;ncia Mensal</h3><select id="moWin" onchange="render()" style="font-size:11px;padding:2px 6px"><option value="6">6 meses</option><option value="12" selected>12 meses</option><option value="24">24 meses</option><option value="36">36 meses</option><option value="0">Tudo</option></select></div><canvas id="cmo" style="max-height:190px"></canvas></div>
   <div class="cc"><h3>Marcas <span class="ht">&mdash; clique p/ filtrar</span></h3><div class="tw"><table id="tb"><thead><tr><th>#</th><th>Marca</th><th>Vendas</th><th class="bc"></th></tr></thead><tbody></tbody></table></div></div>
@@ -429,8 +422,13 @@ function drawFB(){
   const ic={brand:'\uD83C\uDFF7',ei:'\uD83D\uDCC5',ek:'\uD83D\uDCCD',model:'\uD83D\uDE97',yr:'\uD83D\uDCC6',comb:'\u26FD',pr:'\uD83D\uDCB0'};
   const lb={brand:S.brand,ei:S.ei!=null?EIL[EIO.indexOf(S.ei)]:null,ek:S.ek!=null?EKL[EKO.indexOf(S.ek)]:null,model:S.model,yr:S.yr,comb:S.comb,pr:S.pr!=null?PRL[PRO.indexOf(S.pr)]:null};
   const tags=Object.entries(lb).filter(([,v])=>v).map(([d,l])=>`<span class="ft">${ic[d]} ${l}<span class="fx" data-d="${d}">\u00d7</span></span>`);
-  const cnt=tags.length?`<span class="fb-cnt">${pt(getFilteredData().t)}</span>`:'';
-  bar.innerHTML=cnt+tags.join('')+(tags.length?'<button class="ca" onclick="clearAll()">Limpar tudo</button>':'');
+  const MN=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const now=new Date();
+  const plb={ytd:'YTD '+now.getFullYear(),mtd:'MTD '+MN[now.getMonth()],wtd:'WTD',all:'Total'};
+  let pLbl=plb[S.p];
+  if(!pLbl&&S.p){if(S.p.length===4)pLbl=S.p;else if(S.p.length===7){const[y,m]=S.p.split('-');pLbl=MN[+m-1]+' '+y;}else pLbl=S.p;}
+  const sel=`<span class="fb-sel"><span class="fb-per">${pLbl||''}</span><span class="fb-val">${pt(getFilteredData().t)}</span></span>`;
+  bar.innerHTML=sel+tags.join('')+(tags.length?'<button class="ca" onclick="clearAll()">Limpar tudo</button>':'');
   bar.querySelectorAll('.fx').forEach(x=>x.addEventListener('click',e=>{e.stopPropagation();setF(x.dataset.d,S[x.dataset.d]);}));
 }
 // ── STEP 4: renderAll(filteredData) ──
@@ -450,10 +448,6 @@ function normalizeDistributions(data){
 }
 function renderAll(data){
   data=normalizeDistributions(data);
-  const tot=D.kpi.total;
-  document.getElementById('v0').textContent=pt(data.t);
-  const pl={ytd:'YTD 2026',mtd:'MTD Mai',wtd:'WTD',all:'Hist\u00f3rico'};
-  document.getElementById('l0').textContent=`${pl[S.p]||S.p} \u00b7 ${pct(data.t,tot)}%`;
   drawFB();
   if(catOpen){renderCat(document.getElementById('ctsrc').value);return;}
   drawMo();
