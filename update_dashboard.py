@@ -45,7 +45,7 @@ def sumtv(rws): return sum(tv(r) for r in rws)
 
 def compute_stats(rws, ms):
     from collections import Counter
-    brands, models, ei_cnt, ek_cnt, cb_cnt, pr_cnt = Counter(), Counter(), Counter(), Counter(), Counter(), Counter()
+    brands, models, ei_cnt, ek_cnt, cb_cnt, pr_cnt, coo_cnt = Counter(), Counter(), Counter(), Counter(), Counter(), Counter(), Counter()
     ey = defaultdict(lambda: defaultdict(int))
     for r in rws:
         n = tv(r)
@@ -53,6 +53,8 @@ def compute_stats(rws, ms):
         ei_cnt[r['escalao_idade']] += n; ek_cnt[r['escalao_kms']] += n
         ey[r['escalao_idade']][str(r['ano_exato'])] += n
         cb_cnt[r['combustivel']] += n; pr_cnt[r['price_range']] += n
+        coo_cnt[r.get('country_of_origin') or 'Unknown'] += n
+    coo_sorted = sorted([[c, v] for c, v in coo_cnt.items()], key=lambda x: -x[1])
     return {
         't': sumtv(rws),
         'b': sorted([[b,c] for b,c in brands.items()], key=lambda x:-x[1]),
@@ -60,7 +62,7 @@ def compute_stats(rws, ms):
         'ei': {k: ei_cnt[k] for k in EI_ORDER if k in ei_cnt},
         'ek': {k: ek_cnt[k] for k in EK_ORDER if k in ek_cnt},
         'ey': {k: dict(sorted(ey[k].items())) for k in EI_ORDER if k in ey},
-        'cb': dict(cb_cnt), 'pr': dict(pr_cnt), 'ms': ms,
+        'cb': dict(cb_cnt), 'pr': dict(pr_cnt), 'coo': coo_sorted, 'ms': ms,
     }
 
 all_ym = sorted(set(r['data_venda'][:7] for r in rows))
