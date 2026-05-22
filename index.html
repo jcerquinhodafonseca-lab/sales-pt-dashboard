@@ -410,6 +410,56 @@ function drawCOO(){
       scales:{x:{grid:{color:'#f0f0f0'},ticks:{color:'#999',callback:v=>pt(v)}},
         y:{grid:{display:false},ticks:{color:'#999',font:{size:11}}}}}});
 }
+function getPrevYearComparison(){
+  // Returns {prevVal, prevLbl} respecting active filters, or null if not computable.
+  if(!D.last_date||!S.p||S.p==='all')return null;
+  const[ldy,ldm,ldd]=D.last_date.split('-');
+  const MN=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const MNF=['Janeiro','Fevereiro','Mar\u00e7o','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const prevYr=+ldy-1;
+  const ldMN2=MN[+ldm-1];
+  // Filters that make prev-year from monthly data impossible (no per-model/escalao monthly breakdown)
+  const hasComplexFilter=S.ei!=null||S.ek!=null||S.model!=null||S.yr!=null;
+  if(hasComplexFilter)return null;
+  const nDimFilters=(S.brand!=null?1:0)+(S.comb!=null?1:0)+(S.pr!=null?1:0);
+  if(nDimFilters>1)return null; // multiple dim filters: can't derive from 1D monthly tables
+  // No dimension filter and no canal filter: use exact Python-computed D.prev for ytd/mtd/wtd
+  const noFilter=nDimFilters===0&&S.canal==null;
+  if(noFilter&&['ytd','mtd','wtd'].includes(S.p)&&D.prev){
+    const prevVal=D.prev[S.p]||0;if(!prevVal)return null;
+    let prevLbl='';
+    if(S.p==='ytd')prevLbl=`Jan\u2013${+ldd} ${ldMN2} ${prevYr}`;
+    else if(S.p==='mtd')prevLbl=`1\u2013${+ldd} ${ldMN2} ${prevYr}`;
+    else if(S.p==='wtd'){const d=new Date(+ldy,+ldm-1,+ldd);const dow=(d.getDay()+6)%7;prevLbl=`${+ldd-dow}\u2013${+ldd} ${ldMN2} ${prevYr}`;}
+    return{prevVal,prevLbl};
+  }
+  // With filter or canal: use monthly breakdown tables
+  let moSrc;
+  if(S.brand!=null)moSrc=(D.bmo||{})[S.brand];
+  else if(S.comb!=null)moSrc=(D.cmo||{})[S.comb];
+  else if(S.pr!=null)moSrc=(D.prmo||{})[S.pr];
+  else moSrc=D.mo; // canal-only filter
+  if(!moSrc)return null;
+  let prevVal=0,prevLbl='';
+  if(S.p==='ytd'){
+    for(let m=1;m<=+ldm;m++){const k=`${prevYr}-${String(m).padStart(2,'0')}`;prevVal+=moSrc[k]||0;}
+    prevLbl=`Jan\u2013${ldMN2} ${prevYr}`;
+  }else if(S.p==='mtd'){
+    prevVal=moSrc[`${prevYr}-${ldm}`]||0;
+    prevLbl=`${MNF[+ldm-1]} ${prevYr}`;
+  }else if(S.p==='wtd'){
+    return null; // monthly data too coarse for WTD with filters
+  }else if(S.p&&S.p.length===7){
+    const[py,pm]=S.p.split('-');
+    prevVal=moSrc[`${+py-1}-${pm}`]||0;
+    prevLbl=`${MNF[+pm-1]} ${+py-1}`;
+  }else if(S.p&&S.p.length===4){
+    const pys=String(+S.p-1);
+    prevVal=Object.entries(moSrc).filter(([k])=>k.startsWith(pys+'-')).reduce((s,[,v])=>s+v,0);
+    prevLbl=`${+S.p-1}`;
+  }
+  return prevVal>0?{prevVal,prevLbl}:null;
+}
 function drawFB(){
   const bar=document.getElementById('fb');
   const ic={brand:'\uD83C\uDFF7',ei:'\uD83D\uDCC5',ek:'\uD83D\uDCCD',model:'\uD83D\uDE97',yr:'\uD83D\uDCC6',comb:'\u26FD',pr:'\uD83D\uDCB0'};
@@ -435,38 +485,17 @@ function drawFB(){
   }
   const sel=`<span class="fb-sel"><span class="fb-per">${pLbl||''}</span><span class="fb-val">${pt(getFilteredData().t)}</span>${dateRange?`<span class="fb-range">${dateRange}</span>`:''}</span>`;
   let deltaHtml='';
-  {
-    const[ldy,ldm,ldd]=D.last_date?D.last_date.split('-'):['0','1','1'];
-    const prevYr=+ldy-1;
-    const ldMN2=MN[+ldm-1];
-    let prevVal=0,prevLbl='';
-    if(['ytd','mtd','wtd'].includes(S.p)&&D.prev){
-      prevVal=D.prev[S.p]||0;
-      if(S.p==='ytd')prevLbl=`Jan\u2013${+ldd} ${ldMN2} ${prevYr}`;
-      else if(S.p==='mtd')prevLbl=`1\u2013${+ldd} ${ldMN2} ${prevYr}`;
-      else if(S.p==='wtd'){const ldDate2=new Date(+ldy,+ldm-1,+ldd);const dow2=(ldDate2.getDay()+6)%7;prevLbl=`${+ldd-dow2}\u2013${+ldd} ${ldMN2} ${prevYr}`;}
-    } else if(S.p&&S.p.length===7&&D.mo){
-      // Specific month: compare same month previous year
-      const[py,pm]=S.p.split('-');
-      const prevKey=`${+py-1}-${pm}`;
-      prevVal=D.mo[prevKey]||0;
-      if(prevVal>0)prevLbl=`${MNF[+pm-1]} ${+py-1}`;
-    } else if(S.p&&S.p.length===4&&D.mo){
-      // Full year: sum all months of previous year
-      const prevYrStr=String(+S.p-1);
-      prevVal=Object.entries(D.mo).filter(([k])=>k.startsWith(prevYrStr+'-')).reduce((s,[,v])=>s+v,0);
-      if(prevVal>0)prevLbl=`${+S.p-1}`;
-    }
-    if(prevVal>0){
-      const curr=getFilteredData().t;
-      const delta=curr-prevVal;
-      const pct2=(delta/prevVal*100).toFixed(1);
-      const up=delta>=0;
-      const color=up?'#16a34a':'#dc2626';
-      const arrow=up?'\u2191':'\u2193';
-      const sign=up?'+':'';
-      deltaHtml=`<span class="fb-delta"><span class="fb-delta-val" style="color:${color}">${arrow} ${sign}${pct2}%</span><span class="fb-delta-lbl">vs ${prevLbl} (${pt(prevVal)})</span></span>`;
-    }
+  const _cmp=getPrevYearComparison();
+  if(_cmp){
+    const{prevVal,prevLbl}=_cmp;
+    const curr=getFilteredData().t;
+    const delta=curr-prevVal;
+    const pct2=(delta/prevVal*100).toFixed(1);
+    const up=delta>=0;
+    const color=up?'#16a34a':'#dc2626';
+    const arrow=up?'\u2191':'\u2193';
+    const sign=up?'+':'';
+    deltaHtml=`<span class="fb-delta"><span class="fb-delta-val" style="color:${color}">${arrow} ${sign}${pct2}%</span><span class="fb-delta-lbl">vs ${prevLbl} (${pt(prevVal)})</span></span>`;
   }
   bar.innerHTML=sel+deltaHtml+tags.join('')+(tags.length?'<button class="ca" onclick="clearAll()">Limpar tudo</button>':'');
   bar.querySelectorAll('.fx').forEach(x=>x.addEventListener('click',e=>{e.stopPropagation();setF(x.dataset.d,S[x.dataset.d]);}));
