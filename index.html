@@ -312,16 +312,16 @@ function drawMo(){
     const col=(S.canal&&kImp&&S.canal===kImp)?cImp:cPT;
     datasets=[{data:getMoVals(D,keys),backgroundColor:keys.map(k=>sel.has(k)?col+',.9)':col+',.18)'),borderRadius:3,borderSkipped:false,label:'Vendas'}];
   }
-  // Previous year line: shift each key back 12 months
+  // Previous year line: shift each key back 12 months, respecting active filters
   const prevKeys=keys.map(k=>{const[y,m]=k.split('-');const d=new Date(+y,+m-1-12,1);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`});
-  const prevVals=prevKeys.map(k=>D.mo[k]||0);
+  const prevVals=getMoVals(D,prevKeys);
   const hasPrevData=prevVals.some(v=>v>0);
   if(hasPrevData){
     datasets.push({type:'line',data:prevVals,label:'Ano anterior',borderColor:'rgba(150,150,150,.55)',borderWidth:1.5,borderDash:[4,3],pointRadius:0,pointHoverRadius:3,fill:false,tension:0.3,order:0,yAxisID:'y'});
   }
   CH['cmo']=new Chart(ctx,{type:'bar',data:{labels:lbls,datasets},
     options:{responsive:true,animation:{duration:150},
-      plugins:{legend:{display:stacked||hasPrevData,onClick:()=>{}},tooltip:{mode:'index',callbacks:{
+      plugins:{legend:{display:stacked||hasPrevData,onClick:(e,item,legend)=>{const ds=legend.chart.data.datasets[item.datasetIndex];if(ds.type==='line'){const meta=legend.chart.getDatasetMeta(item.datasetIndex);meta.hidden=!meta.hidden;legend.chart.update();}}},tooltip:{mode:'index',callbacks:{
         label:c=>{if(c.dataset.type==='line')return` Ano anterior: ${pt(c.parsed.y)}`;if(!stacked)return' '+pt(c.parsed.y);const tot=c.chart.data.datasets.filter(ds=>ds.type!=='line').reduce((s,ds)=>s+(ds.data[c.dataIndex]||0),0);const pct=tot>0?Math.round(c.parsed.y/tot*100):0;return` ${c.dataset.label}: ${pt(c.parsed.y)} (${pct}%)`;},
         footer:ctx=>{if(!stacked||!ctx.length)return undefined;const tot=ctx[0].chart.data.datasets.filter(ds=>ds.type!=='line').reduce((s,ds)=>s+(ds.data[ctx[0].dataIndex]||0),0);return`Total: ${pt(tot)}`;}
       }}},
