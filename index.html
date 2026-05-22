@@ -311,7 +311,7 @@ function drawMo(){
   }
   CH['cmo']=new Chart(ctx,{type:'bar',data:{labels:lbls,datasets},
     options:{responsive:true,animation:{duration:150},
-      plugins:{legend:{display:stacked},tooltip:{mode:'index',callbacks:{
+      plugins:{legend:{display:stacked,onClick:()=>{}},tooltip:{mode:'index',callbacks:{
         label:c=>{if(!stacked)return' '+pt(c.parsed.y);const tot=c.chart.data.datasets.reduce((s,ds)=>s+(ds.data[c.dataIndex]||0),0);const pct=tot>0?Math.round(c.parsed.y/tot*100):0;return` ${c.dataset.label}: ${pt(c.parsed.y)} (${pct}%)`;},
         footer:ctx=>{if(!stacked||!ctx.length)return undefined;const tot=ctx[0].chart.data.datasets.reduce((s,ds)=>s+(ds.data[ctx[0].dataIndex]||0),0);return`Total: ${pt(tot)}`;}
       }}},
