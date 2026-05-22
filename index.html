@@ -17,6 +17,7 @@ select{padding:4px 8px;border-radius:3px;border:1.5px solid #003087;background:#
 .fb-sel{display:inline-flex;flex-direction:column;line-height:1.15;padding-right:14px;margin-right:8px;border-right:1.5px solid #ffd0b0;flex-shrink:0}
 .fb-per{font-size:11px;color:#FF6600;text-transform:uppercase;letter-spacing:.07em;font-weight:700;opacity:.75;margin-bottom:3px}
 .fb-val{font-size:36px;font-weight:800;color:#1a1a2e;font-variant-numeric:tabular-nums}
+.fb-range{font-size:10px;color:#aaa;margin-top:2px}
 .ft{display:flex;align-items:center;gap:3px;background:#fff3e6;border:1.5px solid #FF6600;border-radius:3px;padding:2px 9px;font-size:11px;color:#FF6600;font-weight:600}
 .fx{cursor:pointer;color:#FF6600;margin-left:2px;font-size:14px;line-height:1}.fx:hover{color:#cc5200}
 .ca{margin-left:auto;color:#003087;font-size:11px;cursor:pointer;padding:2px 9px;border-radius:3px;border:1.5px solid #003087;background:transparent;font-family:inherit;font-weight:600}
@@ -405,11 +406,24 @@ function drawFB(){
   const lb={brand:S.brand,ei:S.ei!=null?EIL[EIO.indexOf(S.ei)]:null,ek:S.ek!=null?EKL[EKO.indexOf(S.ek)]:null,model:S.model,yr:S.yr,comb:S.comb,pr:S.pr!=null?PRL[PRO.indexOf(S.pr)]:null};
   const tags=Object.entries(lb).filter(([,v])=>v).map(([d,l])=>`<span class="ft">${ic[d]} ${l}<span class="fx" data-d="${d}">\u00d7</span></span>`);
   const MN=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const MNF=['Janeiro','Fevereiro','Mar\u00e7o','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const now=new Date();
   const plb={ytd:'YTD '+now.getFullYear(),mtd:'MTD '+MN[now.getMonth()],wtd:'WTD',all:'Total'};
   let pLbl=plb[S.p];
   if(!pLbl&&S.p){if(S.p.length===4)pLbl=S.p;else if(S.p.length===7){const[y,m]=S.p.split('-');pLbl=MN[+m-1]+' '+y;}else pLbl=S.p;}
-  const sel=`<span class="fb-sel"><span class="fb-per">${pLbl||''}</span><span class="fb-val">${pt(getFilteredData().t)}</span></span>`;
+  let dateRange='';
+  if(D.last_date){
+    const[ldy,ldm,ldd]=D.last_date.split('-');
+    const ldN=+ldd,ldMF=MNF[+ldm-1],ldMN=MN[+ldm-1];
+    const ldDate=new Date(+ldy,+ldm-1,ldN);
+    if(S.p==='ytd')dateRange=`1 Jan a ${ldN} ${ldMF} ${ldy}`;
+    else if(S.p==='mtd')dateRange=`1 a ${ldN} ${ldMF}`;
+    else if(S.p==='wtd'){const dow=(ldDate.getDay()+6)%7;dateRange=`${ldN-dow} a ${ldN} ${ldMF}`;}
+    else if(S.p==='all'){const minYr=Object.keys(D.mo).sort()[0]?.slice(0,4)||ldy;dateRange=`${minYr} \u2013 ${ldy}`;}
+    else if(S.p&&S.p.length===4)dateRange=`Jan \u2013 Dez ${S.p}`;
+    else if(S.p&&S.p.length===7){const[y,m]=S.p.split('-');dateRange=`${MNF[+m-1]} ${y}`;}
+  }
+  const sel=`<span class="fb-sel"><span class="fb-per">${pLbl||''}</span><span class="fb-val">${pt(getFilteredData().t)}</span>${dateRange?`<span class="fb-range">${dateRange}</span>`:''}</span>`;
   bar.innerHTML=sel+tags.join('')+(tags.length?'<button class="ca" onclick="clearAll()">Limpar tudo</button>':'');
   bar.querySelectorAll('.fx').forEach(x=>x.addEventListener('click',e=>{e.stopPropagation();setF(x.dataset.d,S[x.dataset.d]);}));
 }
