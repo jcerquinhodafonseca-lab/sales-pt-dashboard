@@ -450,7 +450,16 @@ function getPrevYearComparison(){
     prevVal=moSrc[`${prevYr}-${ldm}`]||0;
     prevLbl=`${MNF[+ldm-1]} ${prevYr}`;
   }else if(S.p==='wtd'){
-    return null; // monthly data too coarse for WTD with filters
+    // Prorate prev year's same month by WTD days / calendar days in that month
+    const moVal=moSrc[`${prevYr}-${ldm}`]||0;
+    if(moVal>0){
+      const dw=new Date(+ldy,+ldm-1,+ldd);
+      const dow2=(dw.getDay()+6)%7;
+      const wtdDays=dow2+1; // days from Monday to today inclusive
+      const daysInPrevMo=new Date(prevYr,+ldm,0).getDate();
+      prevVal=Math.round(moVal*wtdDays/daysInPrevMo);
+      prevLbl=`~${+ldd-dow2}\u2013${+ldd} ${ldMN2} ${prevYr}`;
+    }
   }else if(S.p&&S.p.length===7){
     const[py,pm]=S.p.split('-');
     prevVal=moSrc[`${+py-1}-${pm}`]||0;
