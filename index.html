@@ -435,8 +435,28 @@ function drawFB(){
   }
   const sel=`<span class="fb-sel"><span class="fb-per">${pLbl||''}</span><span class="fb-val">${pt(getFilteredData().t)}</span>${dateRange?`<span class="fb-range">${dateRange}</span>`:''}</span>`;
   let deltaHtml='';
-  if(D.prev&&['ytd','mtd','wtd'].includes(S.p)){
-    const prevVal=D.prev[S.p]||0;
+  {
+    const[ldy,ldm,ldd]=D.last_date?D.last_date.split('-'):['0','1','1'];
+    const prevYr=+ldy-1;
+    const ldMN2=MN[+ldm-1];
+    let prevVal=0,prevLbl='';
+    if(['ytd','mtd','wtd'].includes(S.p)&&D.prev){
+      prevVal=D.prev[S.p]||0;
+      if(S.p==='ytd')prevLbl=`Jan\u2013${+ldd} ${ldMN2} ${prevYr}`;
+      else if(S.p==='mtd')prevLbl=`1\u2013${+ldd} ${ldMN2} ${prevYr}`;
+      else if(S.p==='wtd'){const ldDate2=new Date(+ldy,+ldm-1,+ldd);const dow2=(ldDate2.getDay()+6)%7;prevLbl=`${+ldd-dow2}\u2013${+ldd} ${ldMN2} ${prevYr}`;}
+    } else if(S.p&&S.p.length===7&&D.mo){
+      // Specific month: compare same month previous year
+      const[py,pm]=S.p.split('-');
+      const prevKey=`${+py-1}-${pm}`;
+      prevVal=D.mo[prevKey]||0;
+      if(prevVal>0)prevLbl=`${MNF[+pm-1]} ${+py-1}`;
+    } else if(S.p&&S.p.length===4&&D.mo){
+      // Full year: sum all months of previous year
+      const prevYrStr=String(+S.p-1);
+      prevVal=Object.entries(D.mo).filter(([k])=>k.startsWith(prevYrStr+'-')).reduce((s,[,v])=>s+v,0);
+      if(prevVal>0)prevLbl=`${+S.p-1}`;
+    }
     if(prevVal>0){
       const curr=getFilteredData().t;
       const delta=curr-prevVal;
@@ -445,13 +465,6 @@ function drawFB(){
       const color=up?'#16a34a':'#dc2626';
       const arrow=up?'\u2191':'\u2193';
       const sign=up?'+':'';
-      const[ldy,ldm,ldd]=D.last_date.split('-');
-      const prevYr=+ldy-1;
-      const ldMN2=MN[+ldm-1];
-      let prevLbl='';
-      if(S.p==='ytd')prevLbl=`Jan\u2013${+ldd} ${ldMN2} ${prevYr}`;
-      else if(S.p==='mtd')prevLbl=`1\u2013${+ldd} ${ldMN2} ${prevYr}`;
-      else if(S.p==='wtd'){const ldDate2=new Date(+ldy,+ldm-1,+ldd);const dow2=(ldDate2.getDay()+6)%7;prevLbl=`${+ldd-dow2}\u2013${+ldd} ${ldMN2} ${prevYr}`;}
       deltaHtml=`<span class="fb-delta"><span class="fb-delta-val" style="color:${color}">${arrow} ${sign}${pct2}%</span><span class="fb-delta-lbl">vs ${prevLbl} (${pt(prevVal)})</span></span>`;
     }
   }
