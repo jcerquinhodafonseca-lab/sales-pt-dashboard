@@ -186,12 +186,26 @@ for r in rows:
     ym = r['data_venda'][:7]; n = tv(r)
     bmo_d[r['marca']][ym] += n; cmo_d[r['combustivel']][ym] += n; prmo_d[r['price_range']][ym] += n
 
+# ── Previous year same-period totals ─────────────────────────────────────────
+prev_year = TODAY.year - 1
+try:
+    prev_today = date(prev_year, TODAY.month, TODAY.day)
+except ValueError:
+    prev_today = date(prev_year, TODAY.month, 28)  # Feb 29 edge case
+prev_wtd_start = prev_today - timedelta(days=prev_today.weekday())
+
+prev_ytd = sumtv([r for r in rows if date(prev_year, 1, 1) <= date.fromisoformat(r['data_venda']) <= prev_today])
+prev_mtd = sumtv([r for r in rows if date(prev_year, TODAY.month, 1) <= date.fromisoformat(r['data_venda']) <= prev_today])
+prev_wtd = sumtv([r for r in rows if prev_wtd_start <= date.fromisoformat(r['data_venda']) <= prev_today])
+print(f"Prev year ({prev_year}) — YTD: {prev_ytd:,}  MTD: {prev_mtd:,}  WTD: {prev_wtd:,}")
+
 obj_new = {
     'p': p, 'mo': mo, 'kpi': kpi, 'cat': cat, 'cf': cf,
     'bmo': {b: dict(sorted(m.items())) for b,m in bmo_d.items()},
     'cmo': {c: dict(sorted(m.items())) for c,m in cmo_d.items()},
     'prmo': {p2: dict(sorted(m.items())) for p2,m in prmo_d.items()},
     'last_date': str(TODAY),
+    'prev': {'ytd': prev_ytd, 'mtd': prev_mtd, 'wtd': prev_wtd},
 }
 
 # ── Canal support (Stock PT / Stock Importação) ───────────────────────────────
