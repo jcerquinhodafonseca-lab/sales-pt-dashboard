@@ -412,8 +412,10 @@ function drawCOO(){
 }
 function getPrevYearComparison(){
   // Returns {prevVal, prevLbl} respecting active filters, or null if not computable.
-  if(!D.last_date||!S.p||S.p==='all')return null;
-  const[ldy,ldm,ldd]=D.last_date.split('-');
+  // last_date and prev are only on the top-level DALL, not on canal sub-datasets
+  const last_date=DALL.last_date||D.last_date;
+  if(!last_date||!S.p||S.p==='all')return null;
+  const[ldy,ldm,ldd]=last_date.split('-');
   const MN=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   const MNF=['Janeiro','Fevereiro','Mar\u00e7o','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const prevYr=+ldy-1;
@@ -425,8 +427,8 @@ function getPrevYearComparison(){
   if(nDimFilters>1)return null; // multiple dim filters: can't derive from 1D monthly tables
   // No dimension filter and no canal filter: use exact Python-computed D.prev for ytd/mtd/wtd
   const noFilter=nDimFilters===0&&S.canal==null;
-  if(noFilter&&['ytd','mtd','wtd'].includes(S.p)&&D.prev){
-    const prevVal=D.prev[S.p]||0;if(!prevVal)return null;
+  if(noFilter&&['ytd','mtd','wtd'].includes(S.p)&&DALL.prev){
+    const prevVal=DALL.prev[S.p]||0;if(!prevVal)return null;
     let prevLbl='';
     if(S.p==='ytd')prevLbl=`Jan\u2013${+ldd} ${ldMN2} ${prevYr}`;
     else if(S.p==='mtd')prevLbl=`1\u2013${+ldd} ${ldMN2} ${prevYr}`;
