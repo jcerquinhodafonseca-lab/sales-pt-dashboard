@@ -29,7 +29,7 @@ print(f"Loaded {len(rows):,} rows")
 # ── Derive reference date from latest row ────────────────────────────────────
 max_date = max(date.fromisoformat(r['data_venda']) for r in rows)
 TODAY = max_date
-WTD_START = TODAY - timedelta(days=TODAY.weekday())
+WTD_START = TODAY - timedelta(days=6)  # últimos 7 dias
 print(f"Data through: {TODAY}  |  WTD start: {WTD_START}")
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -192,7 +192,7 @@ try:
     prev_today = date(prev_year, TODAY.month, TODAY.day)
 except ValueError:
     prev_today = date(prev_year, TODAY.month, 28)  # Feb 29 edge case
-prev_wtd_start = prev_today - timedelta(days=prev_today.weekday())
+prev_wtd_start = prev_today - timedelta(days=6)  # últimos 7 dias
 
 prev_ytd = sumtv([r for r in rows if date(prev_year, 1, 1) <= date.fromisoformat(r['data_venda']) <= prev_today])
 prev_mtd = sumtv([r for r in rows if date(prev_year, TODAY.month, 1) <= date.fromisoformat(r['data_venda']) <= prev_today])
