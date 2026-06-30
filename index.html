@@ -20,7 +20,7 @@ select{padding:4px 8px;border-radius:3px;border:1.5px solid #003087;background:#
 .fb-range{font-size:10px;color:#aaa;margin-top:2px}
 .fb-delta{display:inline-flex;flex-direction:column;justify-content:center;padding-left:14px;margin-left:0;flex-shrink:0}
 .fb-delta-val{font-size:20px;font-weight:800;line-height:1.1}
-.fb-delta-lbl{font-size:10px;color:#aaa;margin-top:2px}
+.fb-delta-lbl{font-size:10px;color:#aaa;margin-top:2px}.lang-btn{background:none;border:1px solid rgba(128,128,128,.3);border-radius:3px;padding:2px 7px;font-size:10px;cursor:pointer;color:#aaa;line-height:1.4;font-family:inherit}.lang-btn.active{color:#fff;background:#555;border-color:#555}
 .ft{display:flex;align-items:center;gap:3px;background:#fff3e6;border:1.5px solid #FF6600;border-radius:3px;padding:2px 9px;font-size:11px;color:#FF6600;font-weight:600}
 .fx{cursor:pointer;color:#FF6600;margin-left:2px;font-size:14px;line-height:1}.fx:hover{color:#cc5200}
 .ca{margin-left:auto;color:#003087;font-size:11px;cursor:pointer;padding:2px 9px;border-radius:3px;border:1.5px solid #003087;background:transparent;font-family:inherit;font-weight:600}
@@ -68,23 +68,23 @@ td.r{text-align:right;font-variant-numeric:tabular-nums}td.bc{width:70px}
     <select id="ys"><option value="">Ano</option></select>
     <select id="ms"><option value="">M&ecirc;s</option></select><span id="canalWrap" style="display:none;align-items:center;gap:4px"><span class="sp">|</span><button class="b canlb on" data-canal="">Total</button></span>
   </div>
-  <span id="updLbl" style="margin-left:auto;font-size:10px;color:#bbb;white-space:nowrap"></span>
+  <span id="updLbl" style="font-size:10px;color:#bbb;white-space:nowrap"></span><div id="langSwitch" style="margin-left:8px;display:flex;gap:2px;align-items:center;flex-shrink:0"><button class="lang-btn active" onclick="setLang('pt')">PT</button><button class="lang-btn" onclick="setLang('en')">EN</button></div>
 </div>
 <div id="fb"></div>
 <div id="gr">
-  <div class="cc fw"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><h3 style="margin:0">Tend&ecirc;ncia Mensal</h3><select id="moWin" onchange="render()" style="font-size:11px;padding:2px 6px"><option value="6">6 meses</option><option value="12" selected>12 meses</option><option value="24">24 meses</option><option value="36">36 meses</option><option value="0">Tudo</option></select></div><canvas id="cmo" style="max-height:190px"></canvas></div>
-  <div class="cc"><h3>Marcas <span class="ht">&mdash; clique p/ filtrar</span></h3><div class="tw"><table id="tb"><thead><tr><th>#</th><th>Marca</th><th>Vendas</th><th class="bc"></th></tr></thead><tbody></tbody></table></div></div>
-  <div class="cc" style="position:relative"><h3>Escal&atilde;o Idade <span class="ht">&mdash; clique p/ filtrar</span></h3><button id="tmExpBtn" title="Expandir">&#x26F6;</button><div id="tm"></div></div>
-  <div class="cc"><h3>Modelos <span class="ht">&mdash; clique p/ filtrar</span></h3><div class="tw"><table id="tm2"><thead><tr><th>#</th><th>Modelo</th><th>Vendas</th><th class="bc"></th></tr></thead><tbody></tbody></table></div></div>
-  <div class="cc"><h3>Escal&atilde;o Kms <span class="ht">&mdash; clique p/ filtrar</span></h3><canvas id="ce" style="max-height:220px"></canvas></div>
-  <div class="cc"><h3>Combust&iacute;vel <span class="ht">&mdash; clique p/ filtrar</span></h3><canvas id="ccb" style="max-height:180px"></canvas></div>
-  <div class="cc"><h3>Gama de Pre&ccedil;o <span class="ht">&mdash; clique p/ filtrar</span></h3><canvas id="cpr" style="max-height:220px"></canvas></div>
-  <div class="cc fw"><h3>Origem do Ve&iacute;culo <span class="ht" id="cooLbl">&mdash; todos os canais</span></h3><div id="cooWrap" style="position:relative"><canvas id="ccoo"></canvas></div></div>
+  <div class="cc fw"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><h3 style="margin:0" data-i18n="tendencia">Tend&ecirc;ncia Mensal</h3><select id="moWin" onchange="render()" style="font-size:11px;padding:2px 6px"><option value="6">6 meses</option><option value="12" selected>12 meses</option><option value="24">24 meses</option><option value="36">36 meses</option><option value="0">Tudo</option></select></div><canvas id="cmo" style="max-height:190px"></canvas></div>
+  <div class="cc"><h3><span data-i18n="marcas">Marcas</span> <span class="ht" data-i18n="cliqueFiltrar">&mdash; clique p/ filtrar</span></h3><div class="tw"><table id="tb"><thead><tr><th>#</th><th data-i18n="marcaCol">Marca</th><th data-i18n="vendasCol">Vendas</th><th class="bc"></th></tr></thead><tbody></tbody></table></div></div>
+  <div class="cc" style="position:relative"><h3><span data-i18n="escalaoIdade">Escal&atilde;o Idade</span> <span class="ht" data-i18n="cliqueFiltrar">&mdash; clique p/ filtrar</span></h3><button id="tmExpBtn" title="Expandir">&#x26F6;</button><div id="tm"></div></div>
+  <div class="cc"><h3><span data-i18n="modelos">Modelos</span> <span class="ht" data-i18n="cliqueFiltrar">&mdash; clique p/ filtrar</span></h3><div class="tw"><table id="tm2"><thead><tr><th>#</th><th data-i18n="modeloCol">Modelo</th><th data-i18n="vendasCol">Vendas</th><th class="bc"></th></tr></thead><tbody></tbody></table></div></div>
+  <div class="cc"><h3><span data-i18n="escalaoKms">Escal&atilde;o Kms</span> <span class="ht" data-i18n="cliqueFiltrar">&mdash; clique p/ filtrar</span></h3><canvas id="ce" style="max-height:220px"></canvas></div>
+  <div class="cc"><h3><span data-i18n="combustivel">Combust&iacute;vel</span> <span class="ht" data-i18n="cliqueFiltrar">&mdash; clique p/ filtrar</span></h3><canvas id="ccb" style="max-height:180px"></canvas></div>
+  <div class="cc"><h3><span data-i18n="gamaPreco">Gama de Pre&ccedil;o</span> <span class="ht" data-i18n="cliqueFiltrar">&mdash; clique p/ filtrar</span></h3><canvas id="cpr" style="max-height:220px"></canvas></div>
+  <div class="cc fw"><h3><span data-i18n="origemVeiculo">Origem do Ve&iacute;culo</span> <span class="ht" id="cooLbl">&mdash; todos os canais</span></h3><div id="cooWrap" style="position:relative"><canvas id="ccoo"></canvas></div></div>
 </div>
 <div id="tmModal">
   <div id="tmMHdr">
-    <h3 style="color:#a0aec0;font-size:11px;text-transform:uppercase;letter-spacing:.05em">Escal&atilde;o Idade &mdash; Vista Completa</h3>
-    <button id="tmMClose">&#x2715; Fechar</button>
+    <h3 style="color:#a0aec0;font-size:11px;text-transform:uppercase;letter-spacing:.05em"><span data-i18n="escalaoIdade">Escal&atilde;o Idade</span> &mdash; <span data-i18n="vistaCompleta">Vista Completa</span></h3>
+    <button id="tmMClose" data-i18n="fechar">&#x2715; Fechar</button>
   </div>
   <div id="tmFull"></div>
 </div>
@@ -118,6 +118,14 @@ async function decompress(b64){
   let off=0;for(const c of chunks){out.set(c,off);off+=c.length;}
   return JSON.parse(new TextDecoder().decode(out));
 }
+let LANG='pt';
+const MN_PT=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+const MN_EN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MNF_PT=['Janeiro','Fevereiro','Mar\u00e7o','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MNF_EN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+let MN=MN_PT,MNF=MNF_PT;
+const TR={pt:{ano:'Ano',mes:'M\u00eas',tendencia:'Tend\u00eancia Mensal',marcas:'Marcas',marcaCol:'Marca',modeloCol:'Modelo',vendasCol:'Vendas',escalaoIdade:'Escal\u00e3o Idade',modelos:'Modelos',escalaoKms:'Escal\u00e3o Kms',combustivel:'Combust\u00edvel',gamaPreco:'Gama de Pre\u00e7o',origemVeiculo:'Origem do Ve\u00edculo',vistaCompleta:'Vista Completa',fechar:'\u00d7 Fechar',expandir:'Expandir',cliqueFiltrar:'\u2014 clique p/ filtrar',todosCanais:'todos os canais',vendas:'Vendas',anoAnterior:'Ano anterior',total:'Total',desconhecido:'Desconhecido',limparTudo:'Limpar tudo',dadosAte:'Dados at\u00e9',to:'a',erroPrefix:'Erro: ',meses6:'6 meses',meses12:'12 meses',meses24:'24 meses',meses36:'36 meses',tudo:'Tudo',carregando:'A carregar dados...'},en:{ano:'Year',mes:'Month',tendencia:'Monthly Trend',marcas:'Brands',marcaCol:'Brand',modeloCol:'Model',vendasCol:'Sales',escalaoIdade:'Age Range',modelos:'Models',escalaoKms:'Km Range',combustivel:'Fuel',gamaPreco:'Price Range',origemVeiculo:'Vehicle Origin',vistaCompleta:'Full View',fechar:'\u00d7 Close',expandir:'Expand',cliqueFiltrar:'\u2014 click to filter',todosCanais:'all channels',vendas:'Sales',anoAnterior:'Previous year',total:'Total',desconhecido:'Unknown',limparTudo:'Clear all',dadosAte:'Data through',to:'to',erroPrefix:'Error: ',meses6:'6 months',meses12:'12 months',meses24:'24 months',meses36:'36 months',tudo:'All',carregando:'Loading data...'}};
+function L(k){return TR[LANG][k]||TR.pt[k];}
 let D,DALL,S={p:'ytd',brand:null,ei:null,ek:null,model:null,yr:null,comb:null,pr:null,canal:null},CH={},_mtdLabel='',_wtdLabel='';
 function dc(id){if(CH[id]){try{CH[id].destroy();}catch(e){}delete CH[id];}const el=document.getElementById(id);if(el&&el.tagName==='CANVAS'){const n=el.cloneNode(false);el.parentNode.replaceChild(n,el);}}
 function getM2B(){if(!D._m2b){D._m2b={};for(const[br,ms]of Object.entries(D.cat||{}))for(const[mo]of ms)D._m2b[mo]=br;}return D._m2b;}
@@ -295,7 +303,6 @@ function drawMo(){
   const sel=new Set(pd().ms||[]);
   const winEl=document.getElementById('moWin');const win=winEl?+winEl.value:12;
   let keys=Object.keys(D.mo).sort();if(win>0&&keys.length>win)keys=keys.slice(-win);
-  const MN=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
   const lbls=keys.map(k=>{const[y,m]=k.split('-');return MN[+m-1]+"'"+y.slice(2);});
   const cPT='rgba(59,130,246',cImp='rgba(255,140,0';
   const canals=DALL.canal?Object.keys(DALL.canal):[];
@@ -310,20 +317,20 @@ function drawMo(){
     ];
   }else{
     const col=(S.canal&&kImp&&S.canal===kImp)?cImp:cPT;
-    datasets=[{data:getMoVals(D,keys),backgroundColor:keys.map(k=>sel.has(k)?col+',.9)':col+',.18)'),borderRadius:3,borderSkipped:false,label:'Vendas'}];
+    datasets=[{data:getMoVals(D,keys),backgroundColor:keys.map(k=>sel.has(k)?col+',.9)':col+',.18)'),borderRadius:3,borderSkipped:false,label:L('vendas')}];
   }
   // Previous year line: shift each key back 12 months, respecting active filters
   const prevKeys=keys.map(k=>{const[y,m]=k.split('-');const d=new Date(+y,+m-1-12,1);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`});
   const prevVals=getMoVals(D,prevKeys);
   const hasPrevData=prevVals.some(v=>v>0);
   if(hasPrevData){
-    datasets.push({type:'line',data:prevVals,label:'Ano anterior',borderColor:'rgba(150,150,150,.55)',borderWidth:1.5,borderDash:[4,3],pointRadius:0,pointHoverRadius:3,fill:false,tension:0.3,order:0,yAxisID:'y'});
+    datasets.push({type:'line',data:prevVals,label:L('anoAnterior'),borderColor:'rgba(150,150,150,.55)',borderWidth:1.5,borderDash:[4,3],pointRadius:0,pointHoverRadius:3,fill:false,tension:0.3,order:0,yAxisID:'y'});
   }
   CH['cmo']=new Chart(ctx,{type:'bar',data:{labels:lbls,datasets},
     options:{responsive:true,animation:{duration:150},
       plugins:{legend:{display:stacked||hasPrevData,onClick:(e,item,legend)=>{const ds=legend.chart.data.datasets[item.datasetIndex];if(ds.type==='line'){const meta=legend.chart.getDatasetMeta(item.datasetIndex);meta.hidden=!meta.hidden;legend.chart.update();}}},tooltip:{mode:'index',callbacks:{
-        label:c=>{if(c.dataset.type==='line')return` Ano anterior: ${pt(c.parsed.y)}`;if(!stacked)return' '+pt(c.parsed.y);const tot=c.chart.data.datasets.filter(ds=>ds.type!=='line').reduce((s,ds)=>s+(ds.data[c.dataIndex]||0),0);const pct=tot>0?Math.round(c.parsed.y/tot*100):0;return` ${c.dataset.label}: ${pt(c.parsed.y)} (${pct}%)`;},
-        footer:ctx=>{if(!stacked||!ctx.length)return undefined;const tot=ctx[0].chart.data.datasets.filter(ds=>ds.type!=='line').reduce((s,ds)=>s+(ds.data[ctx[0].dataIndex]||0),0);return`Total: ${pt(tot)}`;}
+        label:c=>{if(c.dataset.type==='line')return` ${L('anoAnterior')}: ${pt(c.parsed.y)}`;if(!stacked)return' '+pt(c.parsed.y);const tot=c.chart.data.datasets.filter(ds=>ds.type!=='line').reduce((s,ds)=>s+(ds.data[c.dataIndex]||0),0);const pct=tot>0?Math.round(c.parsed.y/tot*100):0;return` ${c.dataset.label}: ${pt(c.parsed.y)} (${pct}%)`;},
+        footer:ctx=>{if(!stacked||!ctx.length)return undefined;const tot=ctx[0].chart.data.datasets.filter(ds=>ds.type!=='line').reduce((s,ds)=>s+(ds.data[ctx[0].dataIndex]||0),0);return`${L('total')}: ${pt(tot)}`;}
       }}},
       scales:{x:{...(stacked?{stacked:true}:{}),grid:{color:'#f0f0f0'},ticks:{color:'#999',maxRotation:50,font:{size:9}}},
         y:{...(stacked?{stacked:true}:{}),grid:{color:'#f0f0f0'},ticks:{color:'#999',callback:v=>pt(v)}}}}});
@@ -339,7 +346,7 @@ function drawEK(data){
   const vals=EKO.map(k=>data.ek[k]||0);const tot=vals.reduce((s,v)=>s+v,0)||data.t||1;
   CH['ce']=new Chart(ctx,{type:'bar',data:{labels:EKL,datasets:[{data:vals,
     backgroundColor:EKO.map((k,i)=>k===S.ek?EKC[i]:EKC[i]+'55'),borderColor:EKC,
-    borderWidth:EKO.map(k=>k===S.ek?2:0),borderRadius:3,borderSkipped:false,label:'Vendas'}]},
+    borderWidth:EKO.map(k=>k===S.ek?2:0),borderRadius:3,borderSkipped:false,label:L('vendas')}]},
     options:{indexAxis:'y',responsive:true,animation:{duration:150},plugins:{legend:{display:false},
       tooltip:{callbacks:{label:c=>{const v=c.parsed.x;return` ${pt(v)} (${pct(v,tot)}%)`;}}}},
       scales:{x:{grid:{color:'#f0f0f0'},ticks:{color:'#999',callback:v=>pt(v)}},y:{grid:{color:'#f0f0f0'},ticks:{color:'#999',font:{size:11}}}},
@@ -374,7 +381,7 @@ function drawCB(data){
   const cb=data.cb||{};const vals=CBO.map(k=>cb[k]||0);const tot=vals.reduce((s,v)=>s+v,0)||data.t||1;
   CH['ccb']=new Chart(ctx,{type:'bar',data:{labels:CBL,datasets:[{data:vals,
     backgroundColor:CBO.map((k,i)=>k===S.comb?CBC[i]:CBC[i]+'55'),borderColor:CBC,
-    borderWidth:CBO.map(k=>k===S.comb?2:0),borderRadius:3,borderSkipped:false,label:'Vendas'}]},
+    borderWidth:CBO.map(k=>k===S.comb?2:0),borderRadius:3,borderSkipped:false,label:L('vendas')}]},
     options:{indexAxis:'y',responsive:true,animation:{duration:150},plugins:{legend:{display:false},
       tooltip:{callbacks:{label:c=>{const v=c.parsed.x;return` ${pt(v)} (${pct(v,tot)}%)`;}}}},
       scales:{x:{grid:{color:'#f0f0f0'},ticks:{color:'#999',callback:v=>pt(v)}},y:{grid:{color:'#f0f0f0'},ticks:{color:'#999',font:{size:11}}}},
@@ -385,7 +392,7 @@ function drawPR(data){
   const pr=data.pr||{};const vals=PRO.map(k=>pr[k]||0);const tot=vals.reduce((s,v)=>s+v,0)||data.t||1;
   CH['cpr']=new Chart(ctx,{type:'bar',data:{labels:PRL,datasets:[{data:vals,
     backgroundColor:PRO.map((k,i)=>k===S.pr?PRC[i]:PRC[i]+'55'),borderColor:PRC,
-    borderWidth:PRO.map(k=>k===S.pr?2:0),borderRadius:3,borderSkipped:false,label:'Vendas'}]},
+    borderWidth:PRO.map(k=>k===S.pr?2:0),borderRadius:3,borderSkipped:false,label:L('vendas')}]},
     options:{indexAxis:'y',responsive:true,animation:{duration:150},plugins:{legend:{display:false},
       tooltip:{callbacks:{label:c=>{const v=c.parsed.x;return` ${pt(v)} (${pct(v,tot)}%)`;}}}},
       scales:{x:{grid:{color:'#f0f0f0'},ticks:{color:'#999',callback:v=>pt(v)}},y:{grid:{color:'#f0f0f0'},ticks:{color:'#999',font:{size:11}}}},
@@ -394,13 +401,13 @@ function drawPR(data){
 function drawCOO(){
   const wrap=document.getElementById('cooWrap');if(!wrap)return;
   const lbl=document.getElementById('cooLbl');
-  if(lbl)lbl.textContent=S.canal?'\u2014 '+S.canal:'\u2014 todos os canais';
+  if(lbl)lbl.textContent=S.canal?'\u2014 '+S.canal:`\u2014 ${L('todosCanais')}`;
   let rows=(D.p[S.p]||{}).coo||[];
   if(rows.length>12){const outros=rows.slice(12).reduce((s,[,v])=>s+v,0);rows=[...rows.slice(0,12),['Outros',outros]];}
   const tot=rows.reduce((s,[,v])=>s+v,0)||1;
   wrap.style.height=Math.max(120,rows.length*28+40)+'px';
   dc('ccoo');const ctx=document.getElementById('ccoo');if(!ctx)return;
-  const labels=rows.map(([c])=>c==='Unknown'?'Desconhecido':c);
+  const labels=rows.map(([c])=>c==='Unknown'?L('desconhecido'):c);
   const vals=rows.map(([,v])=>v);
   const colors=rows.map(([c])=>c==='PT'?'rgba(59,130,246,.8)':c==='Outros'||c==='Unknown'?'rgba(150,150,150,.5)':'rgba(255,140,0,.75)');
   CH['ccoo']=new Chart(ctx,{type:'bar',
@@ -416,8 +423,6 @@ function getPrevYearComparison(){
   const last_date=DALL.last_date||D.last_date;
   if(!last_date||!S.p||S.p==='all')return null;
   const[ldy,ldm,ldd]=last_date.split('-');
-  const MN=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const MNF=['Janeiro','Fevereiro','Mar\u00e7o','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const prevYr=+ldy-1;
   const ldMN2=MN[+ldm-1];
   // Filters that make prev-year from monthly data impossible (no per-model/escalao monthly breakdown)
@@ -474,8 +479,6 @@ function drawFB(){
   const ic={brand:'\uD83C\uDFF7',ei:'\uD83D\uDCC5',ek:'\uD83D\uDCCD',model:'\uD83D\uDE97',yr:'\uD83D\uDCC6',comb:'\u26FD',pr:'\uD83D\uDCB0'};
   const lb={brand:S.brand,ei:S.ei!=null?EIL[EIO.indexOf(S.ei)]:null,ek:S.ek!=null?EKL[EKO.indexOf(S.ek)]:null,model:S.model,yr:S.yr,comb:S.comb,pr:S.pr!=null?PRL[PRO.indexOf(S.pr)]:null};
   const tags=Object.entries(lb).filter(([,v])=>v).map(([d,l])=>`<span class="ft">${ic[d]} ${l}<span class="fx" data-d="${d}">\u00d7</span></span>`);
-  const MN=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const MNF=['Janeiro','Fevereiro','Mar\u00e7o','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const now=new Date();
   const plb={ytd:'YTD '+now.getFullYear(),mtd:'MTD '+MN[now.getMonth()],wtd:'WTD',all:'Total'};
   let pLbl=plb[S.p];
@@ -485,11 +488,11 @@ function drawFB(){
     const[ldy,ldm,ldd]=D.last_date.split('-');
     const ldN=+ldd,ldMF=MNF[+ldm-1],ldMN=MN[+ldm-1];
     const ldDate=new Date(+ldy,+ldm-1,ldN);
-    if(S.p==='ytd')dateRange=`1 Jan a ${ldN} ${ldMF} ${ldy}`;
-    else if(S.p==='mtd')dateRange=`1 a ${ldN} ${ldMF}`;
-    else if(S.p==='wtd'){const ws=new Date(+ldy,+ldm-1,ldN-6);dateRange=ws.getMonth()===+ldm-1?`${ws.getDate()} a ${ldN} ${ldMF}`:`${ws.getDate()} ${MN[ws.getMonth()]} a ${ldN} ${ldMF}`;}
+    if(S.p==='ytd')dateRange=`1 ${MN[0]} ${L('to')} ${ldN} ${ldMF} ${ldy}`;
+    else if(S.p==='mtd')dateRange=`1 ${L('to')} ${ldN} ${ldMF}`;
+    else if(S.p==='wtd'){const ws=new Date(+ldy,+ldm-1,ldN-6);dateRange=ws.getMonth()===+ldm-1?`${ws.getDate()} ${L('to')} ${ldN} ${ldMF}`:`${ws.getDate()} ${MN[ws.getMonth()]} ${L('to')} ${ldN} ${ldMF}`;}
     else if(S.p==='all'){const minYr=Object.keys(D.mo).sort()[0]?.slice(0,4)||ldy;dateRange=`${minYr} \u2013 ${ldy}`;}
-    else if(S.p&&S.p.length===4)dateRange=`Jan \u2013 Dez ${S.p}`;
+    else if(S.p&&S.p.length===4)dateRange=`${MN[0]} \u2013 ${MN[11]} ${S.p}`;
     else if(S.p&&S.p.length===7){const[y,m]=S.p.split('-');dateRange=`${MNF[+m-1]} ${y}`;}
   }
   const sel=`<span class="fb-sel"><span class="fb-per">${pLbl||''}</span><span class="fb-val">${pt(getFilteredData().t)}</span>${dateRange?`<span class="fb-range">${dateRange}</span>`:''}</span>`;
@@ -506,7 +509,7 @@ function drawFB(){
     const sign=up?'+':'';
     deltaHtml=`<span class="fb-delta"><span class="fb-delta-val" style="color:${color}">${arrow} ${sign}${pct2}%</span><span class="fb-delta-lbl">vs ${prevLbl} (${pt(prevVal)})</span></span>`;
   }
-  bar.innerHTML=sel+deltaHtml+tags.join('')+(tags.length?'<button class="ca" onclick="clearAll()">Limpar tudo</button>':'');
+  bar.innerHTML=sel+deltaHtml+tags.join('')+(tags.length?`<button class="ca" onclick="clearAll()">${L('limparTudo')}</button>`:'');
   bar.querySelectorAll('.fx').forEach(x=>x.addEventListener('click',e=>{e.stopPropagation();setF(x.dataset.d,S[x.dataset.d]);}));
 }
 // ── STEP 4: renderAll(filteredData) ──
@@ -551,21 +554,40 @@ async function fetchAndUpdate(){
     if(nd){DALL=nd;D=S.canal&&nd.canal&&nd.canal[S.canal]?nd.canal[S.canal]:nd;render();console.log('Dashboard refreshed from remote data.');}
   }catch(e){console.warn('Auto-refresh failed:',e);}
 }
+function setLang(l){
+  LANG=l;MN=l==='en'?MN_EN:MN_PT;MNF=l==='en'?MNF_EN:MNF_PT;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.textContent===l.toUpperCase()));
+  const now=new Date(),_td=now.getDate(),_tm=now.getMonth(),_ty=now.getFullYear();
+  const _ws=new Date(now);_ws.setDate(_td-6);
+  _mtdLabel=`1\u2013${_td} ${MN[_tm]}`;
+  _wtdLabel=_ws.getMonth()===_tm?`${_ws.getDate()}\u2013${_td} ${MN[_tm]}`:`${_ws.getDate()} ${MN[_ws.getMonth()]}\u2013${_td} ${MN[_tm]}`;
+  const ds=document.getElementById('dateSub');
+  if(ds)ds.textContent=`Auto1 Portugal \u00b7 ${_td} ${MN[_tm]} ${_ty}`;
+  const _updEl=document.getElementById('updLbl');
+  if(_updEl&&D&&D.last_date){const[_ldy,_ldm,_ldd]=D.last_date.split('-');_updEl.textContent=`${L('dadosAte')} ${+_ldd} ${MN[+_ldm-1]} ${_ldy}`;}
+  document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=L(el.dataset.i18n));
+  const ys=document.getElementById('ys'),ms=document.getElementById('ms');
+  if(ys)ys.options[0].textContent=L('ano');
+  if(ms)ms.options[0].textContent=L('mes');
+  const moWin=document.getElementById('moWin');
+  if(moWin){['meses6','meses12','meses24','meses36','tudo'].forEach((k,i)=>{if(moWin.options[i])moWin.options[i].textContent=L(k);});}
+  const tmExpBtn=document.getElementById('tmExpBtn');
+  if(tmExpBtn)tmExpBtn.title=L('expandir');
+  if(D)render();
+}
 async function init(){
   D=await decompress(B64);DALL=D;
   document.getElementById('ld').style.display='none';
   // Date labels always computed from browser's current date — never hardcoded
-  const MNS_S=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   const _now=new Date(),_td=_now.getDate(),_tm=_now.getMonth(),_ty=_now.getFullYear();
   const _ws=new Date(_now);_ws.setDate(_td-6); // last 7 days
-  const _moN=MNS_S[_tm];
+  const _moN=MN[_tm];
   _mtdLabel=`1\u2013${_td} ${_moN}`;
-  _wtdLabel=_ws.getMonth()===_tm?`${_ws.getDate()}\u2013${_td} ${_moN}`:`${_ws.getDate()} ${MNS_S[_ws.getMonth()]}\u2013${_td} ${_moN}`;
+  _wtdLabel=_ws.getMonth()===_tm?`${_ws.getDate()}\u2013${_td} ${_moN}`:`${_ws.getDate()} ${MN[_ws.getMonth()]}\u2013${_td} ${_moN}`;
   const ds=document.getElementById('dateSub');
   if(ds)ds.textContent=`Auto1 Portugal \u00b7 ${_td} ${_moN} ${_ty}`;
   const _updEl=document.getElementById('updLbl');
-  if(_updEl&&D.last_date){const[_ldy,_ldm,_ldd]=D.last_date.split('-');_updEl.textContent=`Dados at\u00e9 ${+_ldd} ${MNS_S[+_ldm-1]} ${_ldy}`;}
-  const MNS=['Janeiro','Fevereiro','Mar\u00e7o','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  if(_updEl&&D.last_date){const[_ldy,_ldm,_ldd]=D.last_date.split('-');_updEl.textContent=`${L('dadosAte')} ${+_ldd} ${MN[+_ldm-1]} ${_ldy}`;}
   const ys=document.getElementById('ys'),ms=document.getElementById('ms');
   const all=Object.keys(D.p);
   const allYrs=[...new Set(all.filter(p=>p.length===4))].sort().reverse();
@@ -574,7 +596,7 @@ async function init(){
     while(ms.options.length>1)ms.remove(1);
     all.filter(p=>p.length===7&&(!yr||p.startsWith(yr))).sort().reverse().forEach(m=>{
       const[y,mo]=m.split('-');const o=document.createElement('option');
-      o.value=m;o.textContent=yr?MNS[+mo-1]:MNS[+mo-1]+' '+y;ms.appendChild(o);
+      o.value=m;o.textContent=yr?MNF[+mo-1]:MNF[+mo-1]+' '+y;ms.appendChild(o);
     });
   }
   fillMs('');
@@ -617,5 +639,5 @@ async function init(){
   fetchAndUpdate();
   setInterval(fetchAndUpdate,24*60*60*1000);
 }
-init().catch(e=>document.getElementById('ld').textContent='Erro: '+e.message);
+init().catch(e=>document.getElementById('ld').textContent=L('erroPrefix')+e.message);
 </script></body></html>
