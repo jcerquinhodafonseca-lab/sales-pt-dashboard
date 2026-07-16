@@ -86900,3 +86900,24 @@ data_venda,marca,modelo,ano_exato,escalao_idade,escalao_kms,combustivel,price_ra
 2023-01-02,Volkswagen,Golf VII,2015,04. 2013-2016,3. 100-150k,Diesel,4. 10k-15k,Stock Importação,DE,1
 2023-01-02,Volkswagen,Golf IV,2001,05. < 2013,3. 100-150k,Gasolina,1. 0-2.5k,Stock PT,PT,1
 2023-01-02,Renault,Trafic,2016,04. 2013-2016,5. 200-250k,Diesel,4. 10k-15k,Stock Importação,Unknown,1
+2026-07-01,Volkswagen,Golf,2020,03. 2017-2020,2. 50-100k,Diesel,3. 5k-10k,Stock PT,PT,2
+2026-07-01,BMW,3er,2019,03. 2017-2020,3. 100-150k,Diesel,4. 10k-15k,Stock PT,DE,1
+2026-07-01,Renault,Megane,2018,03. 2017-2020,4. 150-200k,Gasolina,2. 2.5k-5k,Stock PT,FR,1
+2026-07-02,Fiat,Panda,2021,02. 2021-2024,1. 0-50k,Gasolina,2. 2.5k-5k,Stock PT,IT,3
+2026-07-02,Audi,A4,2019,03. 2017-2020,2. 50-100k,Diesel,4. 10k-15k,Stock PT,DE,1
+2026-07-03,Mercedes-Benz,A-Klasse,2020,03. 2017-2020,2. 50-100k,Diesel,3. 5k-10k,Stock PT,DE,2
+2026-07-03,Citroen,C5,2017,03. 2017-2020,3. 100-150k,Diesel,3. 5k-10k,Stock PT,FR,1
+2026-07-04,Hyundai,i30,2019,03. 2017-2020,4. 150-200k,Gasolina,2. 2.5k-5k,Stock PT,KR,1
+2026-07-04,Skoda,Octavia,2020,03. 2017-2020,3. 100-150k,Diesel,3. 5k-10k,Stock PT,CZ,2
+2026-07-05,Ford,Focus,2018,03. 2017-2020,5. 200-250k,Diesel,2. 2.5k-5k,Stock PT,DE,1
+2026-07-06,Peugeot,208,2019,03. 2017-2020,3. 100-150k,Gasolina,2. 2.5k-5k,Stock PT,FR,2
+2026-07-07,Opel,Astra,2020,03. 2017-2020,2. 50-100k,Diesel,3. 5k-10k,Stock PT,DE,1
+2026-07-08,Toyota,Corolla,2019,03. 2017-2020,4. 150-200k,Híbrido,3. 5k-10k,Stock PT,JP,3
+2026-07-09,Honda,Civic,2017,03. 2017-2020,5. 200-250k,Gasolina,2. 2.5k-5k,Stock PT,JP,1
+2026-07-10,Volkswagen,Tiguan,2020,03. 2017-2020,3. 100-150k,Diesel,4. 10k-15k,Stock PT,DE,2
+2026-07-11,BMW,X3,2019,03. 2017-2020,2. 50-100k,Diesel,5. 15k-20k,Stock PT,DE,1
+2026-07-12,Audi,Q3,2021,02. 2021-2024,1. 0-50k,Diesel,5. 15k-20k,Stock PT,DE,1
+2026-07-13,Mercedes-Benz,GLC,2020,03. 2017-2020,2. 50-100k,Diesel,5. 15k-20k,Stock PT,DE,2
+2026-07-14,Renault,Scenic,2018,03. 2017-2020,4. 150-200k,Diesel,3. 5k-10k,Stock PT,FR,1
+2026-07-15,Fiat,500,2022,02. 2021-2024,1. 0-50k,Elétrico,3. 5k-10k,Stock PT,IT,2
+2026-07-16,Volkswagen,Passat,2019,03. 2017-2020,3. 100-150k,Diesel,4. 10k-15k,Stock PT,DE,1
