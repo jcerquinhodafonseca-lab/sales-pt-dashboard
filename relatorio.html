@@ -1,0 +1,237 @@
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Relatório Mensal · Sales PT</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f5f7;color:#1a1a2e;font-size:13px}
+#hdr{background:#fff;border-bottom:3px solid #FF6600;padding:0 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:100;min-height:54px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+.logo-wrap{display:flex;align-items:center;gap:11px;padding-right:18px;margin-right:4px;border-right:1px solid #f0f0f0;flex-shrink:0}
+h1{font-size:13px;font-weight:700;color:#1a1a2e;letter-spacing:-.01em}
+.sub{color:#aaa;font-size:10px;margin-top:1px}
+.back-link{font-size:11px;color:#003087;text-decoration:none;font-weight:600;white-space:nowrap;border:1.5px solid #003087;border-radius:3px;padding:4px 10px}
+#msel{display:flex;gap:6px;align-items:center;margin-left:auto}
+.nav-btn{padding:4px 10px;border-radius:3px;border:1.5px solid #ddd;background:#fff;color:#666;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600}
+.nav-btn:hover:not(:disabled){border-color:#FF6600;color:#FF6600}
+.nav-btn:disabled{opacity:.35;cursor:default}
+select{padding:5px 10px;border-radius:3px;border:1.5px solid #003087;background:#fff;color:#003087;font-size:12px;font-family:inherit;cursor:pointer;outline:none;font-weight:700}
+#wrap{max-width:1200px;margin:0 auto;padding:20px}
+#ld{position:fixed;inset:0;background:#f5f5f7;display:flex;align-items:center;justify-content:center;font-size:14px;color:#888;z-index:200}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.card{background:#fff;border-radius:8px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.card-lbl{font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:6px}
+.card-val{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums}
+.card-sub{font-size:11px;color:#999;margin-top:4px}
+.cmp-card{display:flex;flex-direction:column;gap:2px}
+.cmp-delta{font-size:20px;font-weight:800}
+.cmp-delta.up{color:#16a34a}
+.cmp-delta.down{color:#dc2626}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+.panel{background:#fff;border-radius:8px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:14px}
+.panel h3{font-size:13px;margin-bottom:10px;color:#1a1a2e}
+.panel canvas{max-height:260px}
+.fund-list{display:flex;flex-direction:column;gap:6px}
+.fund-row{display:flex;align-items:center;gap:8px;font-size:12px}
+.fund-name{width:130px;flex-shrink:0;color:#555}
+.fund-bar-wrap{flex:1;background:#f0f0f0;border-radius:3px;height:14px;overflow:hidden}
+.fund-bar{height:100%;background:#FF6600;border-radius:3px}
+.fund-val{width:60px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0}
+</style></head>
+<body>
+<div id="ld">A carregar dados...</div>
+<div id="hdr">
+  <div class="logo-wrap"><div><h1>Relatório Mensal</h1><div class="sub">Auto1 Portugal &middot; Sales PT</div></div></div>
+  <a class="back-link" href="index.html">&larr; Voltar ao Dashboard</a>
+  <div id="msel">
+    <button class="nav-btn" id="prevM">&larr;</button>
+    <select id="monthSel"></select>
+    <button class="nav-btn" id="nextM">&rarr;</button>
+  </div>
+</div>
+<div id="wrap">
+  <div class="cards" id="summaryCards"></div>
+  <div class="grid2" id="cmpCards"></div>
+  <div class="panel"><h3>Vendas Diárias no Mês</h3><canvas id="dailyChart"></canvas></div>
+  <div class="grid2">
+    <div class="panel"><h3>Top Marcas do Mês</h3><canvas id="brandChart"></canvas></div>
+    <div class="panel"><h3>Canal (Stock PT vs Importação)</h3><canvas id="canalChart"></canvas></div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><h3>Combustível</h3><div class="fund-list" id="fuelList"></div></div>
+    <div class="panel"><h3>Faixa de Preço</h3><div class="fund-list" id="priceList"></div></div>
+  </div>
+  <div class="panel"><h3>Escalão de Idade</h3><div class="fund-list" id="ageList"></div></div>
+</div>
+<script>
+const MN_PT=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+const MNF_PT=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+async function decompress(b64){
+  const bin=atob(b64),buf=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)buf[i]=bin.charCodeAt(i);
+  const ds=new DecompressionStream('gzip'),w=ds.writable.getWriter(),r=ds.readable.getReader();
+  w.write(buf);w.close();
+  const chunks=[];let done;
+  while(({done,value}=await r.read()),!done)chunks.push(value);
+  const total=chunks.reduce((s,c)=>s+c.length,0),out=new Uint8Array(total);
+  let off=0;for(const c of chunks){out.set(c,off);off+=c.length;}
+  return JSON.parse(new TextDecoder().decode(out));
+}
+
+let D=null, months=[], curIdx=0;
+let dailyChart=null, brandChart=null, canalChart=null;
+
+function fmtMonth(ym){
+  const [y,m]=ym.split('-');
+  return `${MNF_PT[parseInt(m,10)-1]} ${y}`;
+}
+function pt(n){return n.toLocaleString('pt-PT');}
+
+function monthStats(ym){
+  const p=D.p[ym];
+  const total=p?p.t:0;
+  const dm=D.dm[ym]||{};
+  const days=Object.keys(dm).map(Number).sort((a,b)=>a-b);
+  const [y,m]=ym.split('-').map(Number);
+  const daysInMonth=new Date(y,m,0).getDate();
+  const avgDaily=days.length?total/daysInMonth:0;
+  let bestDay=null,bestVal=-1;
+  for(const d of days){ if(dm[d]>bestVal){bestVal=dm[d];bestDay=d;} }
+  return {total,dm,daysInMonth,avgDaily,bestDay,bestVal};
+}
+
+function prevMonthKey(ym){
+  const [y,m]=ym.split('-').map(Number);
+  const d=new Date(y,m-2,1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+function sameMonthLastYear(ym){
+  const [y,m]=ym.split('-').map(Number);
+  return `${y-1}-${String(m).padStart(2,'0')}`;
+}
+
+function deltaHtml(curr,prev,label){
+  if(prev===undefined||prev===null||!D.mo.hasOwnProperty(prev)&&!(D.p[prev])){
+    return `<div class="cmp-card"><div class="card-lbl">${label}</div><div class="card-sub">Sem dados</div></div>`;
+  }
+  const prevTotal=D.p[prev]?D.p[prev].t:0;
+  const delta=curr-prevTotal;
+  const pct=prevTotal?((delta/prevTotal)*100).toFixed(1):'—';
+  const up=delta>=0;
+  const arrow=up?'↑':'↓';
+  const sign=up?'+':'';
+  return `<div class="cmp-card">
+    <div class="card-lbl">${label} (${fmtMonth(prev)}: ${pt(prevTotal)})</div>
+    <div class="cmp-delta ${up?'up':'down'}">${arrow} ${sign}${delta} (${sign}${pct}%)</div>
+  </div>`;
+}
+
+function renderSummary(ym){
+  const s=monthStats(ym);
+  const bestLbl=s.bestDay?`${s.bestDay} de ${fmtMonth(ym).split(' ')[0]} — ${pt(s.bestVal)} vendas`:'—';
+  document.getElementById('summaryCards').innerHTML=`
+    <div class="card"><div class="card-lbl">Total de Vendas</div><div class="card-val">${pt(s.total)}</div><div class="card-sub">${fmtMonth(ym)}</div></div>
+    <div class="card"><div class="card-lbl">Média Diária</div><div class="card-val">${s.avgDaily.toFixed(1)}</div><div class="card-sub">${s.daysInMonth} dias no mês</div></div>
+    <div class="card"><div class="card-lbl">Melhor Dia</div><div class="card-val">${s.bestVal>=0?pt(s.bestVal):'—'}</div><div class="card-sub">${bestLbl}</div></div>
+  `;
+}
+
+function renderComparisons(ym){
+  const s=monthStats(ym);
+  const prevM=prevMonthKey(ym);
+  const prevY=sameMonthLastYear(ym);
+  document.getElementById('cmpCards').innerHTML=
+    `<div class="card">${deltaHtml(s.total,prevM,'vs Mês Anterior')}</div>`+
+    `<div class="card">${deltaHtml(s.total,prevY,'vs Mesmo Mês Ano Anterior')}</div>`;
+}
+
+function renderDailyChart(ym){
+  const s=monthStats(ym);
+  const labels=[];const data=[];
+  for(let d=1;d<=s.daysInMonth;d++){labels.push(d);data.push(s.dm[d]||0);}
+  if(dailyChart)dailyChart.destroy();
+  dailyChart=new Chart(document.getElementById('dailyChart'),{
+    type:'line',
+    data:{labels,datasets:[{label:'Vendas',data,borderColor:'#FF6600',backgroundColor:'rgba(255,102,0,.1)',fill:true,tension:.25,pointRadius:2}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+  });
+}
+
+function renderBrandChart(ym){
+  const p=D.p[ym];
+  const top=(p?p.b:[]).slice(0,8);
+  if(brandChart)brandChart.destroy();
+  brandChart=new Chart(document.getElementById('brandChart'),{
+    type:'bar',
+    data:{labels:top.map(x=>x[0]),datasets:[{label:'Vendas',data:top.map(x=>x[1]),backgroundColor:'#003087'}]},
+    options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}
+  });
+}
+
+function renderCanalChart(ym){
+  const labels=[],data=[];
+  if(D.canal){
+    for(const cv of Object.keys(D.canal)){
+      const cp=D.canal[cv].p[ym];
+      labels.push(cv);data.push(cp?cp.t:0);
+    }
+  }
+  if(canalChart)canalChart.destroy();
+  canalChart=new Chart(document.getElementById('canalChart'),{
+    type:'doughnut',
+    data:{labels,datasets:[{data,backgroundColor:['#FF6600','#003087','#16a34a']}]},
+    options:{responsive:true,plugins:{legend:{position:'bottom'}}}
+  });
+}
+
+function renderFundList(elId,dict,order){
+  const entries=order?order.filter(k=>dict&&dict[k]!==undefined).map(k=>[k,dict[k]]):Object.entries(dict||{});
+  entries.sort((a,b)=>b[1]-a[1]);
+  const max=Math.max(1,...entries.map(e=>e[1]));
+  document.getElementById(elId).innerHTML=entries.map(([k,v])=>
+    `<div class="fund-row"><div class="fund-name">${k}</div><div class="fund-bar-wrap"><div class="fund-bar" style="width:${(v/max*100).toFixed(1)}%"></div></div><div class="fund-val">${pt(v)}</div></div>`
+  ).join('');
+}
+
+function renderFundamentals(ym){
+  const p=D.p[ym]||{};
+  renderFundList('fuelList',p.cb);
+  renderFundList('priceList',p.pr);
+  const EI_ORDER=['01. 2025-2026','02. 2021-2024','03. 2017-2020','04. 2013-2016','05. < 2013'];
+  renderFundList('ageList',p.ei,EI_ORDER);
+}
+
+function renderAll(){
+  const ym=months[curIdx];
+  document.getElementById('monthSel').value=ym;
+  document.getElementById('prevM').disabled=curIdx<=0;
+  document.getElementById('nextM').disabled=curIdx>=months.length-1;
+  renderSummary(ym);
+  renderComparisons(ym);
+  renderDailyChart(ym);
+  renderBrandChart(ym);
+  renderCanalChart(ym);
+  renderFundamentals(ym);
+}
+
+async function init(){
+  const res=await fetch('index.html');
+  const text=await res.text();
+  const m=text.match(/const B64="([^"]+)"/);
+  D=await decompress(m[1]);
+  months=Object.keys(D.mo).sort();
+  curIdx=months.length-1;
+
+  const sel=document.getElementById('monthSel');
+  sel.innerHTML=months.map(ym=>`<option value="${ym}">${fmtMonth(ym)}</option>`).join('');
+  sel.value=months[curIdx];
+  sel.addEventListener('change',()=>{curIdx=months.indexOf(sel.value);renderAll();});
+  document.getElementById('prevM').addEventListener('click',()=>{if(curIdx>0){curIdx--;renderAll();}});
+  document.getElementById('nextM').addEventListener('click',()=>{if(curIdx<months.length-1){curIdx++;renderAll();}});
+
+  document.getElementById('ld').style.display='none';
+  renderAll();
+}
+init();
+</script>
+</body></html>

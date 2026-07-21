@@ -186,6 +186,13 @@ for r in rows:
     ym = r['data_venda'][:7]; n = tv(r)
     bmo_d[r['marca']][ym] += n; cmo_d[r['combustivel']][ym] += n; prmo_d[r['price_range']][ym] += n
 
+# ── Daily totals per month (for the monthly report's daily trend chart) ───────
+dm_d = defaultdict(lambda: defaultdict(int))
+for r in rows:
+    d = r['data_venda']; ym = d[:7]; day = int(d[8:10])
+    dm_d[ym][day] += tv(r)
+dm = {ym: dict(sorted(days.items())) for ym, days in dm_d.items()}
+
 # ── Previous year same-period totals ─────────────────────────────────────────
 prev_year = TODAY.year - 1
 try:
@@ -204,6 +211,7 @@ obj_new = {
     'bmo': {b: dict(sorted(m.items())) for b,m in bmo_d.items()},
     'cmo': {c: dict(sorted(m.items())) for c,m in cmo_d.items()},
     'prmo': {p2: dict(sorted(m.items())) for p2,m in prmo_d.items()},
+    'dm': dm,
     'last_date': str(TODAY),
     'prev': {'ytd': prev_ytd, 'mtd': prev_mtd, 'wtd': prev_wtd},
 }
