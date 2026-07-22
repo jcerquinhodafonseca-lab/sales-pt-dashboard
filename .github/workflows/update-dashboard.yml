@@ -1,6 +1,8 @@
 name: Update Sales PT Dashboard
 
 on:
+  schedule:
+    - cron: "0 9 * * 1"  # every Monday 09:00 UTC
   push:
     paths:
       - "*.csv"
@@ -22,6 +24,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
+      - name: Fetch latest data from Redash
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        env:
+          REDASH_API_KEY: ${{ secrets.REDASH_API_KEY }}
+        run: python fetch_redash.py
 
       - name: Regenerate dashboard
         run: python update_dashboard.py
